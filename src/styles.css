@@ -1,1 +1,57 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Catamaran:800,900|Roboto');
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#title-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -300px;
+  margin-left: -400px;
+  width: 800px;
+  height: 500px;
+  text-align:center;
+}
+
+#title {
+  display: inline-block;
+}
+
+#title>*,
+#subtitle>* {
+  display: inline-block;
+}
+
+#title h4 {
+  font-size: 6.5em;
+  margin-bottom: 0px;
+  font-family: 'Catamaran', sans-serif;
+}
+
+#subtitle {
+  font-size: 1.7em;
+  margin-top: 10px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.typed-cursor {
+  opacity: 1;
+  animation: blink .7s infinite;
+  animation-iteration-count: infinite !important;
+  font-size: 1.7em;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
