@@ -21,7 +21,11 @@
       "styles": [
         "styles.css"
       ],
-      "scripts": [],
+      "scripts": [
+        "../node_modules/three/build/three.min.js",
+        "../node_modules/three/examples/js/renderers/CanvasRenderer.js",
+        "../node_modules/three/examples/js/renderers/Projector.js"
+      ],
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",

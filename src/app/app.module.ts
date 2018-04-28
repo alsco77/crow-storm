@@ -3,11 +3,15 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
+import { BackdropComponent } from './backdrop/backdrop.component';
+import { BirdsComponent } from './birds/birds.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    BackdropComponent,
+    BirdsComponent
   ],
   imports: [
     BrowserModule
