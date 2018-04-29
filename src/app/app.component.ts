@@ -13,11 +13,14 @@ export class AppComponent implements OnInit {
   title: Typed;
   subtitle: Typed;
   showButton: boolean;
+
   terminalOpen = false;
 
   ngOnInit() {
     if (localStorage.getItem('hasOpened') === 'true') {
-      this.showButton = true;
+      setTimeout(() => {
+        this.showButton = true;
+      }, 1000);
     }
     this.initTitle();
   }

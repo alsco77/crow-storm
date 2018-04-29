@@ -1,5 +1,111 @@
-#terminal {
+/* #terminal {
     width: 400px;
     height: 300px;
     background-color:rgba(0,0,0,0.5);
+} */
+
+.shell-wrap {
+  width: 500px;
+  margin: 100px auto 0 auto;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.shell-top-bar {
+  text-align: center;
+  color: #525252;
+  padding: 5px 0;
+  margin: 0;
+  height: 1.1em;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  font-size: 0.85em;
+  border: 1px solid #CCCCCC;
+  border-bottom: none;
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-top-right-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-topright: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background: #f7f7f7;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #f7f7f7 0%, #B8B8B8 100%);
+  /* FF3.6+ */
+  background: -webkit-linear-gradient(top, #f7f7f7 0%, #B8B8B8 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #f7f7f7 0%, #B8B8B8 100%);
+  /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #f7f7f7 0%, #B8B8B8 100%);
+  /* IE10+ */
+  background: linear-gradient(to bottom, #f7f7f7 0%, #B8B8B8 100%);
+  /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#B8B8B8', GradientType=0);
+  /* IE6-9 */
+}
+
+.shell-body {
+  margin: 0;
+  padding: 5px;
+  height: 350px;
+  list-style: none;
+  background: #141414;
+  color: rgb(219, 219, 219);
+  font: 0.8em 'Andale Mono', Consolas, 'Courier New';
+  line-height: 1.6em;
+  -webkit-border-bottom-right-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-bottomright: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.shell-body .commandline {
+  word-wrap: break-word;
+  position: relative;
+  padding: 0 0 0 15px;
+}
+
+.buttons {
+  padding-left: 8px;
+  padding-top: 0px;
+  float: left;
+  line-height: 0px;
+}
+
+.close {
+  background: #ff5c5c;
+  font-size: 12px;
+  text-shadow: none;
+  width: 11px;
+  height: 11px;
+  border: 1px solid #e33e41;
+  border-radius: 50%;
+  display: inline-block;
+  font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;
+}
+
+.close:hover {
+  cursor: pointer;
+}
+
+.close .closebutton {
+  /* font-size: 9px; */
+  /* vertical-align: text-top; */
+  color: #820005;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.2s linear;
+}
+
+.close span {
+  line-height: 9px;
+  vertical-align: 50%;
+}
+
+.shell-top-bar:hover .close .closebutton {
+  visibility: visible;
+  opacity: 1;
 }

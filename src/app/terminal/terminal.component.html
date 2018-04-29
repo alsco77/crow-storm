@@ -1,3 +1,20 @@
-<div id="terminal">
-  Hello
-</div>
+<div id="terminal" ngDraggable [handle]="dragHandle" class="shell-wrap">
+    <div #dragHandle class="shell-top-bar">
+      <!-- <div class="x">
+        <span>&#10006;</span>
+      </div> -->
+      <div class="buttons">
+        <div class="close">
+        <div class="closebutton">
+          <span><strong>x</strong>
+          </span>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="shell-body">
+      <div *ngFor="let cmd of commands">
+        {{cmd}}
+      </div>
+    </div>
+  </div>
