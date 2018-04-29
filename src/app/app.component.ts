@@ -12,6 +12,7 @@ export class AppComponent implements OnInit {
 
   title: Typed;
   subtitle: Typed;
+  loadingComplete: boolean;
 
   ngOnInit() {
     this.initTitle();
@@ -27,11 +28,14 @@ export class AppComponent implements OnInit {
       onComplete: () => {
         this.subtitle = new Typed('#subtitle', {
           strings: ['Melbourne is under attack from a storm of pesky crows!', 'Help get rid of them and you might earn some crow coins',
-            'Ka-kawwwwwwwwww Ka-kawwwwwwwwww'],
+            'Ka-kawwwwwww Ka-kawwwwwwww'],
           typeSpeed: 30,
           backSpeed: 30,
           loop: true,
-          fadeOut: true
+          fadeOut: true,
+          onComplete: () => {
+            this.loadingComplete = true;
+          }
         });
       }
     });

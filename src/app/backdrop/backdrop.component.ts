@@ -28,7 +28,7 @@ export class BackdropComponent implements OnInit {
       states: {
         'default-state': {
           gradients: [
-            ['#3dffa7', '#556270'], // green grey
+            ['#42f4f4', '#556270'], // green grey
             ['#80d3fe', '#7ea0c4']  // blue grey
           ],
           transitionSpeed: 10000
