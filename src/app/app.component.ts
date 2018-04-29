@@ -12,9 +12,13 @@ export class AppComponent implements OnInit {
 
   title: Typed;
   subtitle: Typed;
-  loadingComplete: boolean;
+  showButton: boolean;
+  terminalOpen = false;
 
   ngOnInit() {
+    if (localStorage.getItem('hasOpened') === 'true') {
+      this.showButton = true;
+    }
     this.initTitle();
   }
 
@@ -27,17 +31,23 @@ export class AppComponent implements OnInit {
       loop: false,
       onComplete: () => {
         this.subtitle = new Typed('#subtitle', {
-          strings: ['Melbourne is under attack from a storm of pesky crows!', 'Help get rid of them and you might earn some crow coins',
+          strings: ['Melbourne is under attack from a storm of pesky crows!', 'Help get rid of them and earn some crow coins',
             'Ka-kawwwwwww Ka-kawwwwwwww'],
           typeSpeed: 30,
           backSpeed: 30,
           loop: true,
           fadeOut: true,
           onComplete: () => {
-            this.loadingComplete = true;
+            this.showButton = true;
           }
         });
       }
     });
   }
+
+  openTerminal() {
+    this.terminalOpen = true;
+    localStorage.setItem('hasOpened', 'true');
+  }
+
 }

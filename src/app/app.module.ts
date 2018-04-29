@@ -3,21 +3,26 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material';
 
+import { ServicesModule } from './services/services.module';
+
 import { AppComponent } from './app.component';
 import { BackdropComponent } from './backdrop/backdrop.component';
 import { BirdsComponent } from './birds/birds.component';
+import { TerminalComponent } from './terminal/terminal.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     BackdropComponent,
-    BirdsComponent
+    BirdsComponent,
+    TerminalComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    MatButtonModule
+    MatButtonModule,
+    ServicesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

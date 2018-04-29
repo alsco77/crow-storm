@@ -1,19 +1,23 @@
 <!-- Background -->
-
-
 <div id="container">
   <app-backdrop></app-backdrop>
   <app-birds></app-birds>
 </div>
-<div id="title-container">
+
+<!-- Title -->
+<div id="title-container" [ngClass]="{'animated bounceOutUp': terminalOpen}">
   <span id="title"></span>
   <br/>
   <span id="subtitle"></span>
   <br/>
   <div class="button-container">
-    <button mat-button *ngIf="loadingComplete" class="gradient-button animated bounceInUp">
+    <button mat-button (click)="openTerminal()" *ngIf="showButton"  class="gradient-button animated bounceInUp">
       LETS GO
     </button>
   </div>
 </div>
+
+
 <!-- Console -->
+<app-terminal id="terminal-container" *ngIf="terminalOpen" class="animated bounceInUp">
+</app-terminal>
