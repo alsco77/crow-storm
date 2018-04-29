@@ -1,20 +1,28 @@
 <div id="terminal" ngDraggable [handle]="dragHandle" class="shell-wrap">
-    <div #dragHandle class="shell-top-bar">
-      <!-- <div class="x">
-        <span>&#10006;</span>
-      </div> -->
-      <div class="buttons">
-        <div class="close">
+  <div #dragHandle class="shell-top-bar">
+    <div class="buttons">
+      <div class="close">
         <div class="closebutton">
-          <span><strong>x</strong>
+          <span>
+            <strong>x</strong>
           </span>
         </div>
       </div>
-      </div>
     </div>
-    <div class="shell-body">
-      <div *ngFor="let cmd of commands">
-        {{cmd}}
-      </div>
-    </div>
+    Crow Command Centre Control
   </div>
+  <div class="shell-body" (click)="focusInput()">
+    <div *ngFor="let cmd of commands; let i = index" class="output-container">
+      <span [hidden]="i == 0">{{prompt}} {{cmd}} <br/></span>
+      <span [id]="'output-' + i"></span>
+    </div>
+    <span class='terminal-prompt' *ngIf='showPrompt'>
+        {{prompt}}
+    </span>
+    <span class="command-input" *ngIf='showPrompt'>
+      {{currentInput}}{{cursor}}
+    </span>
+    <input type="text" class="cmdInput" #cmdInput [(ngModel)]="currentInput" (blur)="inputBlur()"
+    (focus)="focusInput()" (keyup.enter)="executeCommand()"/>
+  </div>
+</div>

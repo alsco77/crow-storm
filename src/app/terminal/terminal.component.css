@@ -1,12 +1,6 @@
-/* #terminal {
-    width: 400px;
-    height: 300px;
-    background-color:rgba(0,0,0,0.5);
-} */
-
 .shell-wrap {
   width: 500px;
-  margin: 100px auto 0 auto;
+  margin: 0 auto 0 auto;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -14,8 +8,10 @@
 }
 
 .shell-top-bar {
+    font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;
   text-align: center;
   color: #525252;
+  cursor: pointer;
   padding: 5px 0;
   margin: 0;
   height: 1.1em;
@@ -50,7 +46,7 @@
   padding: 5px;
   height: 350px;
   list-style: none;
-  background: #141414;
+  background: rgba(0,0,0,0.8);
   color: rgb(219, 219, 219);
   font: 0.8em 'Andale Mono', Consolas, 'Courier New';
   line-height: 1.6em;
@@ -92,8 +88,6 @@
 }
 
 .close .closebutton {
-  /* font-size: 9px; */
-  /* vertical-align: text-top; */
   color: #820005;
   visibility: hidden;
   opacity: 0;
@@ -108,4 +102,27 @@
 .shell-top-bar:hover .close .closebutton {
   visibility: visible;
   opacity: 1;
+}
+
+
+.shell-body span {
+    white-space: nowrap;
+}
+
+.command-input {
+    background: transparent;
+    border: none;
+    white-space: pre-line
+}
+
+.output-container{
+    white-space: normal;
+}
+
+.cmdInput {
+    width: 0px;
+    height: 0px;
+    margin: 0;
+    padding: 0;
+    border: none;
 }

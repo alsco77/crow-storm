@@ -21,7 +21,7 @@ export class BirdsComponent implements OnInit {
 
   ngOnInit() {
     this.setUpObjects();
-    this.drawBirds(200);
+    this.drawBirds(300);
   }
 
   setUpObjects() {
@@ -193,14 +193,14 @@ export class BirdsComponent implements OnInit {
     this.Bird = function () {
       const scope = this;
       THREE.Geometry.call(this);
-      v(5, 0, 0);
-      v(- 5, - 2, 1);
-      v(- 5, 0, 0);
-      v(- 5, - 2, - 1);
-      v(0, 2, - 6);
-      v(0, 2, 6);
-      v(2, 0, 0);
-      v(- 3, 0, 0);
+      v(10, 0, 0);
+      v(- 10, - 4, 2);
+      v(- 10, 0, 0);
+      v(- 10, - 4, - 2);
+      v(0, 4, - 12);
+      v(0, 4, 12);
+      v(4, 0, 0);
+      v(- 6, 0, 0);
       f3(0, 2, 1);
       f3(4, 7, 6);
       f3(5, 6, 7);
@@ -223,7 +223,7 @@ export class BirdsComponent implements OnInit {
 
   drawBirds(number: number) {
     const SCREEN_WIDTH = window.innerWidth,
-      SCREEN_HEIGHT = window.innerHeight * 1,
+      SCREEN_HEIGHT = window.innerHeight,
       SCREEN_WIDTH_HALF = SCREEN_WIDTH / 2,
       SCREEN_HEIGHT_HALF = SCREEN_HEIGHT / 2;
     let camera, scene, renderer,
@@ -245,7 +245,7 @@ export class BirdsComponent implements OnInit {
         boid.velocity.y = Math.random() * 2 - 1;
         boid.velocity.z = Math.random() * 2 - 1;
         boid.setAvoidWalls(true);
-        boid.setWorldSize(800, 200, 400);
+        boid.setWorldSize(800, 300, 400);
         bird = birds[i] = new THREE.Mesh(new this.Bird(), new THREE.MeshBasicMaterial(
           { color: Math.random() * 0xffffff, side: THREE.DoubleSide }));
         bird.phase = Math.floor(Math.random() * 62.83);
@@ -253,7 +253,7 @@ export class BirdsComponent implements OnInit {
       }
       renderer = new THREE.CanvasRenderer({ alpha: true });
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+      renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT + 300);
       renderer.domElement.id = 'crow-canvas';
 
       renderer.setClearColor(0x00ff00, 0);
@@ -272,7 +272,7 @@ export class BirdsComponent implements OnInit {
     }
 
     function onDocumentMouseMove(event) {
-      const vector = new THREE.Vector3(event.clientX - SCREEN_WIDTH_HALF, - event.clientY - 300 + SCREEN_HEIGHT_HALF, 0);
+      const vector = new THREE.Vector3(event.clientX - SCREEN_WIDTH_HALF, - event.clientY + SCREEN_HEIGHT_HALF, 0);
       for (let i = 0, il = boids.length; i < il; i++) {
         boid = boids[i];
         vector.z = boid.position.z;
