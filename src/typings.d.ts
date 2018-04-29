@@ -4,3 +4,4 @@ interface NodeModule {
   id: string;
 }
 declare var THREE: any;
+declare var GPUComputationRenderer: any;

@@ -23,8 +23,8 @@
       ],
       "scripts": [
         "../node_modules/three/build/three.min.js",
-        "../node_modules/three/examples/js/renderers/CanvasRenderer.js",
-        "../node_modules/three/examples/js/renderers/Projector.js"
+        "../node_modules/three/examples/js/GPUComputationRenderer.js",
+        "../node_modules/three/examples/js/libs/dat.gui.min.js"
       ],
       "environmentSource": "environments/environment.ts",
       "environments": {
