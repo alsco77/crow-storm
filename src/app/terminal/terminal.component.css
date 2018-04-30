@@ -106,13 +106,13 @@
 
 
 .shell-body span {
-    white-space: nowrap;
+    white-space: unset !important;
+    word-wrap:break-word;
 }
 
 .command-input {
     background: transparent;
     border: none;
-    white-space: pre-line
 }
 
 .output-container{

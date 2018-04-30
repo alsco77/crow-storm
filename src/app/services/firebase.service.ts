@@ -25,6 +25,7 @@ export class FirebaseService {
   coins$ = this.coins.asObservable();
 
   constructor(private http: Http, private db: AngularFirestore) {
+
     db.collection<Coin>('coins').valueChanges().subscribe(res => {
       this.coins.next(res);
     });
