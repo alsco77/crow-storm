@@ -56,6 +56,7 @@
   -moz-border-radius-bottomleft: 3px;
   border-bottom-right-radius: 3px;
   border-bottom-left-radius: 3px;
+  overflow-y: scroll;
 }
 
 .shell-body .commandline {
@@ -106,13 +107,14 @@
 
 
 .shell-body span {
-    white-space: unset !important;
+    white-space: pre-line;
     word-wrap:break-word;
 }
 
 .command-input {
     background: transparent;
     border: none;
+    white-space: unset !important;
 }
 
 .output-container{
@@ -125,4 +127,16 @@
     margin: 0;
     padding: 0;
     border: none;
+}
+
+.terminal-prompt {
+    white-space: unset !important;
+}
+
+.terminal-prompt-text {
+    color: orange;
+}
+
+.terminal-prompt-command{
+    white-space: unset !important;
 }

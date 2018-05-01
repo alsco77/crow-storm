@@ -31,26 +31,38 @@ export class TerminalComponent implements AfterViewInit {
 
   cursor = '_';
 
+
+  /* Terminal Messages */
   prompt = '[c-c-c-c] $:';
-  helpMessage = '';
-  unlockAccHelpMessage = '';
+  welcomeMessage = 'Welcome to the CCCC - Crow Command Centre Control\nThe time has come to fight back against the pesky crows^1000\n\n' +
+    'Crow Command Centre Controls loading...^500\n `Calculating storm differentials...`^1000\n ' +
+    '`Calculating defense capabilities...`^1000\n\n'
+    + '';
+  invalidCommandMessage = 'Command not recognised\n';
+  getHelpMessage = '`Enter "help" for a list of available commands`';
+  helpMessage = 'Use the following commands:^400\n\n `unlockaccount [-key] [pKey]`^400\n' +
+    'Now lets take care of some crows!';
+  unlockAccHelpMessage = '`command: "unlockaccount"`^400\n `Params: [-key] [pKey]`^400\n' +
+    '`e.g. unlockaccount -key 0x23948729347892374...`';
 
   constructor(private service: Web3Service, private utils: Utils) {
   }
 
-  ngAfterViewInit() {
-    this.addOutput('CROW STORM');
+  async ngAfterViewInit() {
+    this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
   }
 
 
   async executeCommandAsync() {
-    const input = this.currentInput;
-    this.showPrompt = false;
-    this.currentInput = '';
+    if (this.showPrompt) {
+      const input = this.currentInput;
+      this.showPrompt = false;
+      this.currentInput = '';
 
-    this.addCommand(input);
-    const output = await this.handleCommandAsync(input);
-    this.addOutput(output);
+      this.addCommand(input);
+      const output = await this.handleCommandAsync(input);
+      this.addOutput(output, true);
+    }
   }
 
   addCommand(input: string) {
@@ -60,7 +72,7 @@ export class TerminalComponent implements AfterViewInit {
   async handleCommandAsync(arg: string): Promise<string> {
     arg = arg.trim();
     const args = arg.split(' ');
-    let output = 'standard output';
+    let output = this.helpMessage;
     if (args.length) {
       switch (args[0].toLowerCase()) {
         case 'unlockaccount':
@@ -69,14 +81,20 @@ export class TerminalComponent implements AfterViewInit {
             if (account != null) {
               output = account.address;
             }
+          } else {
+            this.addOutput(this.invalidCommandMessage);
+            output = this.unlockAccHelpMessage;
           }
+          break;
+        case 'help':
+          output = this.helpMessage;
           break;
       }
     }
     return Promise.resolve(output);
   }
 
-  addOutput(output: string) {
+  addOutput(output: string, isLastOutput: boolean = false) {
     const index = this.commands.length;
     this.commands[index] = new Command(null);
     setTimeout(() => {
@@ -88,14 +106,10 @@ export class TerminalComponent implements AfterViewInit {
         showCursor: false,
         loop: false,
         onComplete: () => {
-          this.showPrompt = true;
-          this.focusInput();
-          // this.input = ViewChild('current-input)');
-          // tslint:disable-next-line
-          // let cursor = document.getElementsByClassName('typed-cursor');
-          // while (cursor.length > 0) {
-          //   cursor[0].parentNode.removeChild(cursor[0]);
-          // }
+          if (isLastOutput) {
+            this.showPrompt = true;
+            this.focusInput();
+          }
         }
       }));
     });
