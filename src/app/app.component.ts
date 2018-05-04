@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Web3Service } from '../app/services/web3.service';
 import * as Typed from 'typed.js';
 
 
@@ -15,6 +16,7 @@ export class AppComponent implements OnInit {
   showButton: boolean;
 
   terminalOpen = false;
+
 
   ngOnInit() {
     if (localStorage.getItem('hasOpened') === 'true') {

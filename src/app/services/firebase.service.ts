@@ -21,14 +21,14 @@ export enum Actions {
 @Injectable()
 export class FirebaseService {
 
-  coins = new BehaviorSubject<Coin[]>(null);
-  coins$ = this.coins.asObservable();
+  // coins = new BehaviorSubject<Coin[]>(null);
+  // coins$ = this.coins.asObservable();
 
   constructor(private http: Http, private db: AngularFirestore) {
 
-    db.collection<Coin>('coins').valueChanges().subscribe(res => {
-      this.coins.next(res);
-    });
+    // db.collection<Coin>('coins').valueChanges().subscribe(res => {
+    //   this.coins.next(res);
+    // });
   }
 
   private logAction(userAddr: string, actionType: Actions, contents: object = {}) {

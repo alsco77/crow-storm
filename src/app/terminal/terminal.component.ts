@@ -1,23 +1,25 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import * as Typed from 'typed.js';
-import { Web3Service, EthAccount } from '../services/web3.service';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+
+import { Subscription } from 'rxjs/subscription'
+
+import { Web3Service } from '../services/web3.service';
+import { FirebaseService } from '../services/firebase.service';
 import { Utils } from '../services/utils';
 
-export class Command {
-  constructor(command: string) {
-    this.containsCommand = command !== null;
-    this.command = command;
-  }
-  containsCommand: boolean;
-  command: string;
-}
+import { Command } from '../classes/command';
+import { Coin } from '../classes/coin';
+import { Web3LoadingStatus } from '../classes/web3-loading-status.enum';
+
+import * as Typed from 'typed.js';
+
+
 
 @Component({
   selector: 'app-terminal',
   templateUrl: './terminal.component.html',
   styleUrls: ['./terminal.component.css']
 })
-export class TerminalComponent implements AfterViewInit {
+export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('cmdInput') cmdInput: ElementRef;
 
@@ -31,6 +33,10 @@ export class TerminalComponent implements AfterViewInit {
 
   cursor = '_';
 
+  web3Subscription: Subscription;
+  accountSubscription: Subscription;
+  coinsSubscription: Subscription;
+  coin: Coin;
 
   /* Terminal Messages */
   prompt = '[c-c-c-c] $:';
@@ -45,11 +51,36 @@ export class TerminalComponent implements AfterViewInit {
   unlockAccHelpMessage = '`command: "unlockaccount"`^400\n `Params: [-key] [pKey]`^400\n' +
     '`e.g. unlockaccount -key 0x23948729347892374...`';
 
-  constructor(private service: Web3Service, private utils: Utils) {
+  constructor(private service: Web3Service, private utils: Utils, private firebase: FirebaseService) {
+    
   }
 
   async ngAfterViewInit() {
     this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
+
+    this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
+      console.log("Terminal: Web3Status: " + status);
+      if (status == Web3LoadingStatus.complete) {
+        this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
+          if (acc != undefined) {
+            console.log("Terminal: account loaded: " + acc);
+            const ethBalance = await this.service.getEthBalanceAsync();
+            console.log("Terminal: eth balance: " + ethBalance);
+            const crowBalance = await this.service.getTokenBalanceAsync();
+            console.log("Terminal: crow balance: " + crowBalance);
+
+          }
+        });
+      } else if (status != null) {
+
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.web3Subscription.unsubscribe();
+    this.accountSubscription.unsubscribe();
+    this.coinsSubscription.unsubscribe();
   }
 
 
@@ -77,10 +108,10 @@ export class TerminalComponent implements AfterViewInit {
       switch (args[0].toLowerCase()) {
         case 'unlockaccount':
           if (args.length === 3 && args[1] === '-key' && this.isHexString(args[2])) {
-            const account = await this.service.getAccountFromPKeyAsync(args[2]);
-            if (account != null) {
-              output = account.address;
-            }
+            // const account = await this.service.getAccountFromPKeyAsync(args[2]);
+            // if (account != null) {
+            //   output = account.address;
+            // }
           } else {
             this.addOutput(this.invalidCommandMessage);
             output = this.unlockAccHelpMessage;

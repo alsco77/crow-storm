@@ -13,9 +13,9 @@
   </div>
   <div class="shell-body" (click)="focusInput()">
     <div *ngFor="let cmd of commands; let i = index" class="output-container">
-      <span [hidden]="!cmd.containsCommand">
+      <span [hidden]="!cmd.containsCommand" class="terminal-prompt-command">
         <span class="terminal-prompt-text">{{prompt}}</span>
-        <span class="terminal-prompt-command">{{cmd.command}}</span>
+        {{cmd.command}}
       </span>
       <span [id]="'output-' + i"></span>
     </div>
