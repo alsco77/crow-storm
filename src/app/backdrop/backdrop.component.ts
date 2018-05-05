@@ -46,14 +46,14 @@ export class BackdropComponent implements OnInit, OnDestroy {
           gradients: [
             // ['#93201D', '#420200'], // red, dark red
             ['#f761a1', '#8c1bab'], // pink, opurple
-            ['#DD6C0F', '#FFAB66'] // orange, light orange
           ],
           transitionSpeed: 10000
         },
         'game-state': {
           gradients: [
-            ['#A9A8A8', '#030202'], // really light, light grey
-            ['#787777', '#000000'] // dark grey, black
+            // ['#412A89', '#030202'], // dark purple, light grey
+            ['#DD6C0F', '#FFAB66'], // orange, light orange
+            ['#C7342C', '#760600'] // red, dark red
           ],
           transitionSpeed: 10000
         },

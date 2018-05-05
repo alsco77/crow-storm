@@ -65,7 +65,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
-    // this.addOutput('', true);
+    // this.addOutput('Hi', true);
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
       if (status == Web3LoadingStatus.complete) {
