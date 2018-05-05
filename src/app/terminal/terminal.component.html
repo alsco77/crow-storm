@@ -11,7 +11,7 @@
     </div>
     Crow Command Centre Control
   </div>
-  <div class="shell-body" (click)="focusInput()" [hidden]="shootingCrows">
+  <!-- <div class="shell-body" (click)="focusInput()" [hidden]="shootingCrows">
     <div *ngFor="let cmd of commands; let i = index" class="output-container">
       <span [hidden]="!cmd.containsCommand" class="terminal-prompt-command">
         <span class="terminal-prompt-text">{{prompt}}</span>
@@ -27,8 +27,9 @@
     </span>
     <input type="text" class="cmdInput" #cmdInput [(ngModel)]="currentInput" (blur)="inputBlur()" 
     (focus)="focusInput()" (keyup.enter)="executeCommandAsync()" />
-  </div>
-  <app-game *ngIf="shootingCrows" (finalScore)="gameFinished($event)"></app-game>
+  </div> -->
+  <!-- <app-game *ngIf="shootingCrows" (finalScore)="gameFinished($event)"></app-game> -->
+  <app-game  (finalScore)="gameFinished($event)"></app-game>
 </div>
 
 

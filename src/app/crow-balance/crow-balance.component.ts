@@ -21,27 +21,29 @@ export class CrowBalanceComponent implements AfterViewInit {
   isLoaded = false;
   crowBalance: string;
 
-  constructor(private service: Web3Service, private comService: CommunicateService) { }
+  constructor(private service: Web3Service, private comService: CommunicateService) {
+    
+  }
 
-  async ngAfterViewInit() {
-    this.web3Subscription = this.service.web3Status$.subscribe(async (status: Web3LoadingStatus) => {
-      if (status == Web3LoadingStatus.complete) {
-        this.crowBalance = await this.service.getTokenBalanceAsync();
-      }
-      else {
-        this.crowBalance = null;
-      }
-    });
-    this.appStateSubscription = this.comService.appState$.subscribe((state: AppState) => {
-      if(state == AppState.terminal || state == AppState.game){
-        setTimeout(() => {
-          this.terminalIsOpen = true;
-        }, 3000);
-      }else{
-        this.terminalIsOpen = false;
-      }
-    })
-    this.isLoaded = true;
+  async ngAfterViewInit() {this.web3Subscription = this.service.web3Status$.subscribe(async (status: Web3LoadingStatus) => {
+    if (status == Web3LoadingStatus.complete) {
+      this.crowBalance = await this.service.getTokenBalanceAsync();
+    }
+    else {
+      this.crowBalance = null;
+    }
+  });
+  this.appStateSubscription = this.comService.appState$.subscribe((state: AppState) => {
+    if(state == AppState.terminal || state == AppState.game){
+      setTimeout(() => {
+        this.terminalIsOpen = true;
+      }, 3000);
+    }else{
+      this.terminalIsOpen = false;
+    }
+  })
+  this.isLoaded = true;
+    
   }
 
   ngOnDestroy(): void {

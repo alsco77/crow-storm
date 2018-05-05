@@ -241,7 +241,7 @@ export class PlayState {
       }
       if (bang) {
         this.invaders.splice(i--, 1);
-        game.sounds.playSound('bang');
+        game.sounds.playSound('crow');
       }
     }
 
@@ -276,7 +276,7 @@ export class PlayState {
         bomb.y >= (this.ship.y - this.ship.height / 2) && bomb.y <= (this.ship.y + this.ship.height / 2)) {
         this.bombs.splice(i--, 1);
         game.lives--;
-        game.sounds.playSound('explosion');
+        game.sounds.playSound('hit');
       }
 
     }
@@ -290,7 +290,7 @@ export class PlayState {
         (invader.y - invader.height / 2) < (this.ship.y + this.ship.height / 2)) {
         //  Dead by collision!
         game.lives = 0;
-        game.sounds.playSound('explosion');
+        game.sounds.playSound('hit');
       }
     }
 
@@ -403,9 +403,10 @@ export class WelcomeState {
   enter(game) {
     game.sounds = new Sounds();
     game.sounds.init();
-    game.sounds.loadSound('shoot', '/assets/sounds/shoot.wav');
+    game.sounds.loadSound('shoot', '/assets/sounds/pistol.wav');
     game.sounds.loadSound('bang', '/assets/sounds/bang.wav');
-    game.sounds.loadSound('explosion', '/assets/sounds/explosion.wav');
+    game.sounds.loadSound('crow', '/assets/sounds/crow.wav');
+    game.sounds.loadSound('hit', '/assets/sounds/hurt.wav');
   }
   update(game, dt) { };
 
