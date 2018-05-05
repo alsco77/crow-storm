@@ -8,10 +8,10 @@ import { CommunicateService } from '../services/communicate.service';
 import { Utils } from '../services/utils';
 
 import { Command } from '../classes/command';
-import { Coin } from '../classes/coin';
 import { Web3LoadingStatus } from '../classes/web3-loading-status.enum';
 
 import * as Typed from 'typed.js';
+import { AppState } from '../classes/app-state.enum';
 
 
 
@@ -28,10 +28,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   commands: Array<Command> = [new Command(null)];
   currentInput = '';
 
-  // isExecutingCommand = false;
   showPrompt = false;
   interval: any;
-  // addingOutput = false;
 
   shootingCrows = false;
 
@@ -39,8 +37,6 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   web3Subscription: Subscription;
   accountSubscription: Subscription;
-  coinsSubscription: Subscription;
-  coin: Coin;
 
   crowBalance: string;
 
@@ -59,7 +55,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     '`e.g. shootcrows -difficulty medium...`^400\n' +
     '`e.g. shootcrows`';
   loadingCrowsMessage = 'Lets go shooting!^400\n `Prepping equipment...`^400\n' +
-      '`Setting up position...`^400\n';
+      '`Setting up position...`^400\n\n ';
   unlockAccHelpMessage = '`command: "unlockaccount"`^400\n `Params: [-key] [pKey]`^400\n' +
     '`e.g. unlockaccount -key 0x23948729347892374...`';
 
@@ -92,11 +88,11 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.web3Subscription.unsubscribe();
     this.accountSubscription.unsubscribe();
-    this.coinsSubscription.unsubscribe();
   }
 
   closeTerminal(){
-    this.comService.closeTerminal();
+    this.shootingCrows = false;
+    this.comService.setState(AppState.home);
   }
 
   async executeCommandAsync() {
@@ -144,6 +140,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           // } else {
             this.addOutput(this.loadingCrowsMessage);
             this.shootingCrows = true;
+            this.comService.setState(AppState.game);
             output = null;
           // }
           break;
@@ -181,7 +178,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   gameFinished(score){
     this.shootingCrows = false;
-    
+    this.comService.setState(AppState.terminal);
     this.addOutput('\nYour sacrifice has been noted!^400\n Would you like to claim your ' + score +
     ' Crow Coins? [Y]es or [N]o^400\n', true);
   }

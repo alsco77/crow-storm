@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/subscription'
 import { Web3Service } from '../services/web3.service';
 import { CommunicateService } from '../services/communicate.service';
 import { Web3LoadingStatus } from '../classes/web3-loading-status.enum';
+import { AppState } from '../classes/app-state.enum';
 
 @Component({
   selector: 'app-crow-balance',
@@ -14,7 +15,7 @@ export class CrowBalanceComponent implements AfterViewInit {
 
 
   web3Subscription: Subscription;
-  terminalSubscription: Subscription;
+  appStateSubscription: Subscription;
 
   terminalIsOpen = false;
   isLoaded = false;
@@ -31,11 +32,11 @@ export class CrowBalanceComponent implements AfterViewInit {
         this.crowBalance = null;
       }
     });
-    this.comService.terminalService$.subscribe((isOpen: boolean) => {
-      if(isOpen){
+    this.appStateSubscription = this.comService.appState$.subscribe((state: AppState) => {
+      if(state == AppState.terminal || state == AppState.game){
         setTimeout(() => {
           this.terminalIsOpen = true;
-        }, 2000);
+        }, 3000);
       }else{
         this.terminalIsOpen = false;
       }
@@ -45,7 +46,7 @@ export class CrowBalanceComponent implements AfterViewInit {
 
   ngOnDestroy(): void {
     this.web3Subscription.unsubscribe();
-    this.terminalSubscription.unsubscribe();
+    this.appStateSubscription.unsubscribe();
   }
 
 }

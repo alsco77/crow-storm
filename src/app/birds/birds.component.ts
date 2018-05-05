@@ -6,6 +6,7 @@ import * as Detector from 'three/examples/js/Detector.js';
 import 'three/examples/js/GPUComputationRenderer.js';
 
 import { CommunicateService } from '../services/communicate.service';
+import { AppState } from '../classes/app-state.enum';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -24,16 +25,16 @@ export class BirdsComponent implements AfterViewInit, OnDestroy {
   mouseInterval: any;
 
   constructor(private comService: CommunicateService) {
-    this.terminalSubscription = this.comService.terminalService$.subscribe((isOpen: boolean) => {
-      if (isOpen != null) {
-        if (isOpen) {
+    this.terminalSubscription = this.comService.appState$.subscribe((state: AppState) => {
+
+        if (state == AppState.terminal || state == AppState.game) {
+          clearInterval(this.mouseInterval);
           this.mouseInterval = setInterval(() => {
             document.dispatchEvent(new MouseEvent('simulatemousemove'));
           }, 10)
         } else {
           clearInterval(this.mouseInterval);
         }
-      }
     })
   }
 

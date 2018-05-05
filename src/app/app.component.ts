@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/co
 import { CommunicateService } from '../app/services/communicate.service';
 import * as Typed from 'typed.js';
 import { Subscription } from 'rxjs/subscription'
+import { AppState } from './classes/app-state.enum';
 
 
 @Component({
@@ -17,9 +18,10 @@ export class AppComponent implements OnInit, OnDestroy {
   showButton: boolean;
 
   terminalOpen = false;
+  bounceIn = false;
   terminalSubscription: Subscription;
 
-  constructor(private comService: CommunicateService){
+  constructor(private comService: CommunicateService) {
 
   }
 
@@ -30,16 +32,19 @@ export class AppComponent implements OnInit, OnDestroy {
       }, 1000);
     }
     this.initTitle();
-    this.comService.terminalService$.subscribe((isOpen: boolean) => {
-      if(isOpen){
+    this.terminalSubscription = this.comService.appState$.subscribe((state: AppState) => {
+      if (state == AppState.terminal || state == AppState.game) {
         this.terminalOpen = true;
-      }else{
-        this.terminalOpen = false;
+      } else {
+        if(this.terminalOpen){
+          this.bounceIn = true;
+          this.terminalOpen = false;
+        }
       }
     })
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.terminalSubscription.unsubscribe();
   }
 
@@ -67,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   openTerminal() {
-    this.comService.openTerminal();
+    this.comService.setState(AppState.terminal);
     localStorage.setItem('hasOpened', 'true');
   }
 

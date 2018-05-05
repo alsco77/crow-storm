@@ -693,7 +693,6 @@ export class GameComponent implements AfterViewInit {
 
   toggleMute() {
     this.mute();
-    document.getElementById("muteLink").innerText = this.sounds.mute ? "unmute" : "mute";
   };
 
   initialise(gameCanvas) {
