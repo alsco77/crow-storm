@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Web3Service } from '../app/services/web3.service';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { CommunicateService } from '../app/services/communicate.service';
 import * as Typed from 'typed.js';
+import { Subscription } from 'rxjs/subscription'
 
 
 @Component({
@@ -8,7 +9,7 @@ import * as Typed from 'typed.js';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
 
   title: Typed;
@@ -16,7 +17,11 @@ export class AppComponent implements OnInit {
   showButton: boolean;
 
   terminalOpen = false;
+  terminalSubscription: Subscription;
 
+  constructor(private comService: CommunicateService){
+
+  }
 
   ngOnInit() {
     if (localStorage.getItem('hasOpened') === 'true') {
@@ -25,6 +30,17 @@ export class AppComponent implements OnInit {
       }, 1000);
     }
     this.initTitle();
+    this.comService.terminalService$.subscribe((isOpen: boolean) => {
+      if(isOpen){
+        this.terminalOpen = true;
+      }else{
+        this.terminalOpen = false;
+      }
+    })
+  }
+
+  ngOnDestroy(){
+    this.terminalSubscription.unsubscribe();
   }
 
   initTitle() {
@@ -51,7 +67,7 @@ export class AppComponent implements OnInit {
   }
 
   openTerminal() {
-    this.terminalOpen = true;
+    this.comService.openTerminal();
     localStorage.setItem('hasOpened', 'true');
   }
 

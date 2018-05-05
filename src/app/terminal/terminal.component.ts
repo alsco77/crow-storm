@@ -31,6 +31,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   // isExecutingCommand = false;
   showPrompt = false;
   interval: any;
+  // addingOutput = false;
 
   shootingCrows = false;
 
@@ -40,6 +41,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   accountSubscription: Subscription;
   coinsSubscription: Subscription;
   coin: Coin;
+
+  crowBalance: string;
 
   /* Terminal Messages */
   prompt = '[c-c-c-c] $:';
@@ -66,7 +69,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   async ngAfterViewInit() {
     this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
-    this.comService.simulateMouse();
+    // this.comService.simulateMouse();
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
       if (status == Web3LoadingStatus.complete) {
@@ -75,8 +78,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
             console.log("Terminal: account loaded: " + acc);
             const ethBalance = await this.service.getEthBalanceAsync();
             console.log("Terminal: eth balance: " + ethBalance);
-            const crowBalance = await this.service.getTokenBalanceAsync();
-            console.log("Terminal: crow balance: " + crowBalance);
+            this.crowBalance = await this.service.getTokenBalanceAsync();
+            console.log("Terminal: crow balance: " + this.crowBalance);
 
           }
         });
@@ -90,9 +93,11 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     this.web3Subscription.unsubscribe();
     this.accountSubscription.unsubscribe();
     this.coinsSubscription.unsubscribe();
-    this.comService.stopSimulateMouse();
   }
 
+  closeTerminal(){
+    this.comService.closeTerminal();
+  }
 
   async executeCommandAsync() {
     if (this.showPrompt) {
@@ -151,6 +156,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   }
 
   addOutput(output: string = '', isLastOutput: boolean = false) {
+    // while(this.addingOutput == true){}
+    // this.addingOutput = true;
     const index = this.commands.length;
     this.commands[index] = new Command(null);
     setTimeout(() => {
@@ -162,6 +169,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
         showCursor: false,
         loop: false,
         onComplete: () => {
+          // this.addingOutput = false;
           if (isLastOutput) {
             this.showPrompt = true;
             this.focusInput();
@@ -173,8 +181,9 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   gameFinished(score){
     this.shootingCrows = false;
-    this.addOutput('Your sacrifice has been noted!^400\n Would you like to claim your ' + score +
-    ' + Crow Coins? [Y]es or [N]o^400\n', true);
+    
+    this.addOutput('\nYour sacrifice has been noted!^400\n Would you like to claim your ' + score +
+    ' Crow Coins? [Y]es or [N]o^400\n', true);
   }
 
   inputBlur() {

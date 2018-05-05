@@ -8,7 +8,7 @@
 }
 
 .shell-top-bar {
-    font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;
+  font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;
   text-align: center;
   color: #525252;
   cursor: pointer;
@@ -46,7 +46,7 @@
   padding: 5px;
   height: 500px;
   list-style: none;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
   color: rgb(219, 219, 219);
   font: 0.8em 'Andale Mono', Consolas, 'Courier New';
   line-height: 1.6em;
@@ -105,38 +105,38 @@
   opacity: 1;
 }
 
-
 .shell-body span {
-    white-space: pre-line;
-    word-wrap:break-word;
+  white-space: pre-line;
+  word-wrap: break-word;
 }
 
 .command-input {
-    background: transparent;
-    border: none;
-    white-space: unset !important;
+  background: transparent;
+  border: none;
+  white-space: unset !important;
 }
 
-.output-container{
-    white-space: normal;
+.output-container {
+  white-space: normal;
 }
 
 .cmdInput {
-    width: 0px;
-    height: 0px;
-    margin: 0;
-    padding: 0;
-    border: none;
+  width: 0px;
+  height: 0px;
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
 .terminal-prompt {
-    white-space: unset !important;
+  white-space: unset !important;
 }
 
 .terminal-prompt-text {
-    color: orange;
+  color: orange;
 }
 
-.terminal-prompt-command{
-    white-space: unset !important;
+.terminal-prompt-command {
+  white-space: unset !important;
 }
+

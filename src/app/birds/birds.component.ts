@@ -20,13 +20,13 @@ export class BirdsComponent implements AfterViewInit, OnDestroy {
   Bird: any;
   Boid: any;
 
-  mouseSubscription: Subscription;
+  terminalSubscription: Subscription;
   mouseInterval: any;
 
   constructor(private comService: CommunicateService) {
-    this.mouseSubscription = this.comService.mouseService$.subscribe((move: boolean) => {
-      if (move != null) {
-        if (move) {
+    this.terminalSubscription = this.comService.terminalService$.subscribe((isOpen: boolean) => {
+      if (isOpen != null) {
+        if (isOpen) {
           this.mouseInterval = setInterval(() => {
             document.dispatchEvent(new MouseEvent('simulatemousemove'));
           }, 10)
@@ -38,7 +38,7 @@ export class BirdsComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.mouseSubscription.unsubscribe();
+    this.terminalSubscription.unsubscribe();
   }
 
   ngAfterViewInit() {

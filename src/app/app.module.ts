@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule, MatIconModule } from '@angular/material';
 import { AngularDraggableModule } from 'angular2-draggable';
+import { CountUpModule } from 'countup.js-angular2';
 
 import { AngularFireModule } from 'angularfire2';
 import { AngularFirestoreModule } from 'angularfire2/firestore';
@@ -17,6 +18,7 @@ import { BirdsComponent } from './birds/birds.component';
 import { TerminalComponent } from './terminal/terminal.component';
 import { WeiToEthPipe } from './classes/wei-to-eth.pipe';
 import { GameComponent } from './terminal/game/game.component';
+import { CrowBalanceComponent } from './crow-balance/crow-balance.component';
 
 
 @NgModule({
@@ -26,7 +28,8 @@ import { GameComponent } from './terminal/game/game.component';
     BirdsComponent,
     TerminalComponent,
     WeiToEthPipe,
-    GameComponent
+    GameComponent,
+    CrowBalanceComponent
   ],
   imports: [
     AngularFireModule.initializeApp(environment.firebase),
@@ -37,7 +40,8 @@ import { GameComponent } from './terminal/game/game.component';
     MatButtonModule,
     MatIconModule,
     ServicesModule,
-    FormsModule
+    FormsModule,
+    CountUpModule
   ],
   providers: [],
   bootstrap: [AppComponent]

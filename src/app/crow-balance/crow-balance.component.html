@@ -1,0 +1,7 @@
+<div id="crowCoinBalance" *ngIf="isLoaded" class="animated bounceInUp" [ngClass]="{'bounceOutDown' : !terminalIsOpen}" title="Crow Coins">
+  <div id="balance" *ngIf="terminalIsOpen && crowBalance" countUp  duration="10" [startVal]="0" [endVal]="crowBalance | weiToEth">
+    <!-- {{crowBalance | weiToEth}} x -->
+  </div>
+  <div id="crowCoin">
+  </div>
+</div>

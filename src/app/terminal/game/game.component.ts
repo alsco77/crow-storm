@@ -496,7 +496,7 @@ export class GameOverState {
     ctx.textAlign = "center";
     ctx.fillText("Game Over!", game.width / 2, game.height / 2 - 40);
     ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillText("You took care of " + game.crowsKilled + " crows and earned " + game.score + "Crow Coins", game.width / 2, game.height / 2);
+    ctx.fillText("You took care of " + game.crowsKilled + " crows and earned " + game.score + " Crow Coins", game.width / 2, game.height / 2);
     ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
     ctx.fillText("Press 'Space' to return to the command centre.", game.width / 2, game.height / 2 + 40);
   };

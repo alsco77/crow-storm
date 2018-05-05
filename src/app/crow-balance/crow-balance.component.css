@@ -1,0 +1,39 @@
+#crowCoinBalance {
+  position: fixed;
+  bottom: 10px;
+  right: 70px;
+  z-index: 50;
+  display: inline-table;
+}
+
+#crowCoinBalance div {
+    display: inline-block;
+}
+
+#balance {
+    line-height: 60px; 
+    font-size: 24px;
+    margin-right: 10px;
+    color: #f0f0f0;
+    font-family: 'Catamaran', sans-serif;
+}
+
+#crowCoin {
+  -webkit-transform-style: preserve-3d;
+  -webkit-animation: spin 3s infinite linear;
+  width: 60px;
+  height: 60px;
+  position: absolute;
+  line-height: 60px;
+  background-image: url('/assets/crowCoin.png');
+  background-size: 60px;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotateY(0deg);
+  }
+  100% {
+    -webkit-transform: rotateY(740deg);
+  }
+}

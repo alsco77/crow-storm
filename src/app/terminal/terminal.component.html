@@ -1,7 +1,7 @@
 <div id="terminal" ngDraggable [handle]="dragHandle" class="shell-wrap">
   <div #dragHandle class="shell-top-bar">
     <div class="buttons">
-      <div class="close">
+      <div class="close" (click)="closeTerminal()">
         <div class="closebutton">
           <span>
             <strong>x</strong>
@@ -30,3 +30,5 @@
   </div>
   <app-game *ngIf="shootingCrows" (finalScore)="gameFinished($event)"></app-game>
 </div>
+
+
