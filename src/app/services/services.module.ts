@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpModule } from '@angular/http';
 import { Web3Service } from './web3.service';
 import { FirebaseService } from './firebase.service';
+import { CommunicateService } from './communicate.service';
 import { Utils } from './utils';
 import { environment } from '../../environments/environment';
 
@@ -17,7 +18,8 @@ import { environment } from '../../environments/environment';
   providers: [
     FirebaseService,
     Web3Service,
-    Utils
+    Utils,
+    CommunicateService
   ]
 })
 export class ServicesModule { }

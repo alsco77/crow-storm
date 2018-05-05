@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link type="text/css" rel="stylesheet"  href="assets/animate.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
   <app-root></app-root>
@@ -189,5 +190,29 @@
   }
 </script>
 
+<script>
+  (function (window) {
+  try {
+    new MouseEvent('test');
+    return false; // No need to polyfill
+  } catch (e) {
+    // Need to polyfill - fall through
+  }
+
+  // Polyfills DOM4 MouseEvent
+
+  var MouseEvent = function (eventType, params) {
+    params = params || { bubbles: false, cancelable: false };
+    var mouseEvent = document.createEvent('MouseEvent');
+    mouseEvent.initMouseEvent(eventType, params.bubbles, params.cancelable, window, 0, 0, 0, params.clientX, params.clientY, false, false, false, false, 0, null);
+
+    return mouseEvent;
+  }
+
+  MouseEvent.prototype = Event.prototype;
+
+  window.MouseEvent = MouseEvent;
+})(window);
+</script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 
 import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { CommunicateService} from '../../services/communicate.service';
+
 declare var webkitAudioContext: any;
 
 export class Ship {
@@ -9,8 +11,8 @@ export class Ship {
   }
   x: number;
   y: number;
-  width = 20;
-  height = 16;
+  width = 32;
+  height = 32;
 }
 
 export class Rocket {
@@ -52,8 +54,8 @@ export class Invader {
     this.rank = rank;
     this.file = file;
     this.type = type;
-    this.width = 18;
-    this.height = 14;
+    this.width = 36;
+    this.height = 28;
   }
 }
 
@@ -110,8 +112,8 @@ export class PlayState {
     for (var rank = 0; rank < ranks; rank++) {
       for (var file = 0; file < files; file++) {
         invaders.push(new Invader(
-          (game.width / 2) + ((files / 2 - file) * 200 / files),
-          (game.gameBounds.top + rank * 20),
+          (game.width / 2) + ((files / 2 - file) * 300 / files),
+          (game.gameBounds.top + rank * 30),
           rank, file, 'Invader'));
       }
     }
@@ -310,34 +312,41 @@ export class PlayState {
     ctx.clearRect(0, 0, game.width, game.height);
 
     //  Draw ship.
-    ctx.fillStyle = '#999999';
-    ctx.fillRect(this.ship.x - (this.ship.width / 2), this.ship.y - (this.ship.height / 2), this.ship.width, this.ship.height);
+    var shooterImg = new Image();
+    shooterImg.src = "assets/shooter.png";
+    ctx.drawImage(shooterImg, this.ship.x - (this.ship.width / 2), this.ship.y - (this.ship.height / 2), this.ship.width, this.ship.height);
+    
 
     //  Draw invaders.
-    ctx.fillStyle = '#006600';
+    var crowImg = new Image();
+    crowImg.src = "assets/crow.png";
+    // ctx.fillStyle = '#006600';
     for (var i = 0; i < this.invaders.length; i++) {
       var invader = this.invaders[i];
-      ctx.fillRect(invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
+      ctx.drawImage(crowImg, invader.x - invader.width / 2, invader.y - invader.height / 2, invader.width, invader.height);
     }
 
-    //  Draw bombs.
-    ctx.fillStyle = '#ff5555';
+    // Draw bombs
+    var eggImg = new Image();
+    eggImg.src = "assets/egg.png";
     for (var i = 0; i < this.bombs.length; i++) {
       var bomb = this.bombs[i];
-      ctx.fillRect(bomb.x - 2, bomb.y - 2, 4, 4);
+      ctx.drawImage(eggImg, bomb.x - 2, bomb.y -2, 8, 8);
     }
 
+
     //  Draw rockets.
-    ctx.fillStyle = '#ff0000';
+    var bulletImg = new Image();
+    bulletImg.src = "assets/bullet.png";
     for (var i = 0; i < this.rockets.length; i++) {
       var rocket = this.rockets[i];
-      ctx.fillRect(rocket.x, rocket.y - 2, 1, 4);
+      ctx.drawImage(bulletImg, rocket.x, rocket.y - 2, 3, 12);
     }
 
     //  Draw info.
     var textYpos = game.gameBounds.bottom + ((game.height - game.gameBounds.bottom) / 2) + 14 / 2;
-    ctx.font = "14px Arial";
-    ctx.fillStyle = '#ffffff';
+    ctx.font = "14px 'Andale Mono', Consolas, 'Courier New'";
+    ctx.fillStyle = '#f0f0f0';
     var info = "Lives: " + game.lives;
     ctx.textAlign = "left";
     ctx.fillText(info, game.gameBounds.left, textYpos);
@@ -404,12 +413,12 @@ export class WelcomeState {
     //  Clear the background.
     ctx.clearRect(0, 0, game.width, game.height);
 
-    ctx.font = "30px Arial";
-    ctx.fillStyle = '#ffffff';
+    ctx.font = "30px 'Andale Mono', Consolas, 'Courier New'";
+    ctx.fillStyle = '#f0f0f0';
     ctx.textBaseline = "center";
     ctx.textAlign = "center";
-    ctx.fillText("Space Invaders", game.width / 2, game.height / 2 - 40);
-    ctx.font = "16px Arial";
+    ctx.fillText("Crow Invaders", game.width / 2, game.height / 2 - 40);
+    ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
 
     ctx.fillText("Press 'Space' to start.", game.width / 2, game.height / 2);
   }
@@ -458,13 +467,13 @@ export class LevelIntroState {
     //  Clear the background.
     ctx.clearRect(0, 0, game.width, game.height);
 
-    ctx.font = "36px Arial";
-    ctx.fillStyle = '#ffffff';
+    ctx.font = "32px 'Andale Mono', Consolas, 'Courier New'";
+    ctx.fillStyle = '#f0f0f0';
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText("Level " + this.level, game.width / 2, game.height / 2);
-    ctx.font = "24px Arial";
-    ctx.fillText("Ready in " + this.countdownMessage, game.width / 2, game.height / 2 + 36);
+    ctx.fillText("Level " + this.level, game.width / 2, game.height / 2 - 36);
+    ctx.font = "24px 'Andale Mono', Consolas, 'Courier New'";
+    ctx.fillText("Ready in " + this.countdownMessage, game.width / 2, game.height / 2);
     return;
   };
 }
@@ -480,14 +489,14 @@ export class GameOverState {
     //  Clear the background.
     ctx.clearRect(0, 0, game.width, game.height);
 
-    ctx.font = "30px Arial";
-    ctx.fillStyle = '#ffffff';
+    ctx.font = "30px 'Andale Mono', Consolas, 'Courier New'";
+    ctx.fillStyle = '#f0f0f0';
     ctx.textBaseline = "center";
     ctx.textAlign = "center";
     ctx.fillText("Game Over!", game.width / 2, game.height / 2 - 40);
-    ctx.font = "16px Arial";
+    ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
     ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height / 2);
-    ctx.font = "16px Arial";
+    ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
     ctx.fillText("Press 'Space' to play again.", game.width / 2, game.height / 2 + 40);
   };
 
@@ -519,8 +528,8 @@ export class PauseState {
     //  Clear the background.
     ctx.clearRect(0, 0, game.width, game.height);
 
-    ctx.font = "14px Arial";
-    ctx.fillStyle = '#ffffff';
+    ctx.font = "14px 'Andale Mono', Consolas, 'Courier New'";
+    ctx.fillStyle = '#f0f0f0';
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.fillText("Paused", game.width / 2, game.height / 2);
@@ -536,14 +545,15 @@ export class Sounds {
   sounds = {};
   mute;
 
-  constructor() { }
+  constructor() {
+    this.mute = false;
+  }
 
   init() {
 
     //  Create the audio context, paying attention to webkit browsers.
     var context = AudioContext || webkitAudioContext;
     this.audioContext = new context();
-    this.mute = false;
   };
 
   loadSound(name, url) {
@@ -596,6 +606,8 @@ export class Sounds {
 export class GameComponent implements AfterViewInit {
 
 
+  instructions: "Move with arrow keys, fire with the space bar. The invaders get faster and drop more bombs as you complete each level!";
+
   @ViewChild('gameCanvas') canvas: ElementRef;
 
   //  Set the initial config.
@@ -608,8 +620,8 @@ export class GameComponent implements AfterViewInit {
     invaderDropDistance: 20,
     rocketVelocity: 160,
     rocketMaxFireRate: 4,
-    gameWidth: 400,
-    gameHeight: 300,
+    gameWidth: 600,
+    gameHeight: 500,
     fps: 50,
     debugMode: false,
     invaderRanks: 5,
@@ -638,13 +650,18 @@ export class GameComponent implements AfterViewInit {
   //  All sounds.
   sounds = null;
 
+  constructor(private comService: CommunicateService){
+
+  }
+
   ngAfterViewInit(){
     this.startGame();
+    this.comService.simulateMouse();
   }
 
   startGame() {
 
-    this.canvas.nativeElement.width = 600;
+    this.canvas.nativeElement.width = 700;
     this.canvas.nativeElement.height = 600;
 
     //  Create the game.
@@ -819,22 +836,3 @@ export class GameComponent implements AfterViewInit {
     }
   };
 }
-
-
-/*
-  Game State
-
-  A Game State is simply an update and draw proc.
-  When a game is in the state, the update and draw procs are
-  called, with a dt value (dt is delta time, i.e. the number)
-  of seconds to update or draw).
-
-*/
-// function GameState(updateProc, drawProc, keyDown, keyUp, enter, leave) {
-//   this.updateProc = updateProc;
-//   this.drawProc = drawProc;
-//   this.keyDown = keyDown;
-//   this.keyUp = keyUp;
-//   this.enter = enter;
-//   this.leave = leave;
-// }
