@@ -15,6 +15,8 @@ import { AppComponent } from './app.component';
 import { BackdropComponent } from './backdrop/backdrop.component';
 import { BirdsComponent } from './birds/birds.component';
 import { TerminalComponent } from './terminal/terminal.component';
+import { WeiToEthPipe } from './classes/wei-to-eth.pipe';
+import { GameComponent } from './terminal/game/game.component';
 
 
 @NgModule({
@@ -22,7 +24,9 @@ import { TerminalComponent } from './terminal/terminal.component';
     AppComponent,
     BackdropComponent,
     BirdsComponent,
-    TerminalComponent
+    TerminalComponent,
+    WeiToEthPipe,
+    GameComponent
   ],
   imports: [
     AngularFireModule.initializeApp(environment.firebase),
