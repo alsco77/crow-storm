@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/subscription'
 
 import { Web3Service } from '../services/web3.service';
 import { FirebaseService } from '../services/firebase.service';
+import { CommunicateService } from '../services/communicate.service';
 import { Utils } from '../services/utils';
 
 import { Command } from '../classes/command';
@@ -31,6 +32,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   showPrompt = false;
   interval: any;
 
+  shootingCrows = false;
+
   cursor = '_';
 
   web3Subscription: Subscription;
@@ -46,18 +49,24 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     + '';
   invalidCommandMessage = 'Command not recognised\n';
   getHelpMessage = '`Enter "help" for a list of available commands`';
-  helpMessage = 'Use the following commands:^400\n\n `unlockaccount [-key] [pKey]`^400\n' +
+  helpMessage = '\n\n `command: shootcrows`^400\n' +
+    '`command: help`^400\n\n' +
     'Now lets take care of some crows!';
+  shootCrowsHelpMessage = '`command: "shootcrows"`^400\n `Params: [-difficulty] ["easy", "medium", "hard"]`^400\n' +
+    '`e.g. shootcrows -difficulty medium...`^400\n' +
+    '`e.g. shootcrows`';
+  loadingCrowsMessage = 'Lets go shooting!^400\n `Prepping equipment...`^400\n' +
+      '`Setting up position...`^400\n';
   unlockAccHelpMessage = '`command: "unlockaccount"`^400\n `Params: [-key] [pKey]`^400\n' +
     '`e.g. unlockaccount -key 0x23948729347892374...`';
 
-  constructor(private service: Web3Service, private utils: Utils, private firebase: FirebaseService) {
+  constructor(private service: Web3Service, private utils: Utils, private firebase: FirebaseService, private comService: CommunicateService) {
     
   }
 
   async ngAfterViewInit() {
-    // this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
-
+    this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
+    this.comService.simulateMouse();
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
       if (status == Web3LoadingStatus.complete) {
@@ -81,6 +90,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     this.web3Subscription.unsubscribe();
     this.accountSubscription.unsubscribe();
     this.coinsSubscription.unsubscribe();
+    this.comService.stopSimulateMouse();
   }
 
 
@@ -92,7 +102,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
       this.addCommand(input);
       const output = await this.handleCommandAsync(input);
-      this.addOutput(output, true);
+      this.addOutput(output, output != null);
     }
   }
 
@@ -103,9 +113,12 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   async handleCommandAsync(arg: string): Promise<string> {
     arg = arg.trim();
     const args = arg.split(' ');
-    let output = this.helpMessage;
+    let output = this.invalidCommandMessage + this.getHelpMessage;
     if (args.length) {
       switch (args[0].toLowerCase()) {
+        case 'help':
+          output = this.helpMessage;
+          break;
         case 'unlockaccount':
           if (args.length === 3 && args[1] === '-key' && this.isHexString(args[2])) {
             // const account = await this.service.getAccountFromPKeyAsync(args[2]);
@@ -117,6 +130,18 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
             output = this.unlockAccHelpMessage;
           }
           break;
+        case 'shootcrows':
+          // if (args.length === 3 && args[1] === '-difficulty' )) {
+          //   // const account = await this.service.getAccountFromPKeyAsync(args[2]);
+          //   // if (account != null) {
+          //   //   output = account.address;
+          //   // }
+          // } else {
+            this.addOutput(this.loadingCrowsMessage);
+            this.shootingCrows = true;
+            output = null;
+          // }
+          break;
         case 'help':
           output = this.helpMessage;
           break;
@@ -125,7 +150,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     return Promise.resolve(output);
   }
 
-  addOutput(output: string, isLastOutput: boolean = false) {
+  addOutput(output: string = '', isLastOutput: boolean = false) {
     const index = this.commands.length;
     this.commands[index] = new Command(null);
     setTimeout(() => {
@@ -144,6 +169,12 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
         }
       }));
     });
+  }
+
+  gameFinished(score){
+    this.shootingCrows = false;
+    this.addOutput('Your sacrifice has been noted!^400\n Would you like to claim your ' + score +
+    ' + Crow Coins? [Y]es or [N]o^400\n', true);
   }
 
   inputBlur() {

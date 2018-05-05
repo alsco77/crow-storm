@@ -1,5 +1,5 @@
 
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import { CommunicateService} from '../../services/communicate.service';
 
 declare var webkitAudioContext: any;
@@ -235,6 +235,7 @@ export class PlayState {
           this.rockets.splice(j--, 1);
           bang = true;
           game.score += this.config.pointsPerInvader;
+          game.crowsKilled += 1;
           break;
         }
       }
@@ -495,18 +496,15 @@ export class GameOverState {
     ctx.textAlign = "center";
     ctx.fillText("Game Over!", game.width / 2, game.height / 2 - 40);
     ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillText("You scored " + game.score + " and got to level " + game.level, game.width / 2, game.height / 2);
+    ctx.fillText("You took care of " + game.crowsKilled + " crows and earned " + game.score + "Crow Coins", game.width / 2, game.height / 2);
     ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillText("Press 'Space' to play again.", game.width / 2, game.height / 2 + 40);
+    ctx.fillText("Press 'Space' to return to the command centre.", game.width / 2, game.height / 2 + 40);
   };
 
   keyDown(game, keyCode) {
     if (keyCode == 32) /*space*/ {
       //  Space restarts the game.
-      game.lives = 3;
-      game.score = 0;
-      game.level = 1;
-      game.moveToState(new LevelIntroState(1));
+      game.finishGame();
     }
   };
 }
@@ -610,6 +608,9 @@ export class GameComponent implements AfterViewInit {
 
   @ViewChild('gameCanvas') canvas: ElementRef;
 
+  @Output()
+  finalScore: EventEmitter<number> = new EventEmitter<number>();
+
   //  Set the initial config.
   config = {
     bombRate: 0.15,
@@ -638,6 +639,7 @@ export class GameComponent implements AfterViewInit {
   gameBounds = { left: 0, top: 0, right: 0, bottom: 0 };
   intervalId;
   score = 0;
+  crowsKilled = 0;
   level = 1;
 
   //  The state stack.
@@ -656,7 +658,6 @@ export class GameComponent implements AfterViewInit {
 
   ngAfterViewInit(){
     this.startGame();
-    this.comService.simulateMouse();
   }
 
   startGame() {
@@ -731,6 +732,10 @@ export class GameComponent implements AfterViewInit {
     this.stateStack.pop();
     this.stateStack.push(state);
   };
+
+  finishGame(){
+    this.finalScore.emit(this.score);
+  }
 
   //  Start the Game.
   start() {
