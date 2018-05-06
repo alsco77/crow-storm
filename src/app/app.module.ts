@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule, MatIconModule } from '@angular/material';
-import { AngularDraggableModule } from 'angular2-draggable';
 import { CountUpModule } from 'countup.js-angular2';
 
 import { AngularFireModule } from 'angularfire2';
@@ -34,7 +33,6 @@ import { CrowBalanceComponent } from './crow-balance/crow-balance.component';
   imports: [
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    AngularDraggableModule,
     BrowserModule,
     BrowserAnimationsModule,
     MatButtonModule,
