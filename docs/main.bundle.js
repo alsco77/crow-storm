@@ -871,7 +871,7 @@ var CrowBalanceComponent = /** @class */ (function () {
                                     });
                                     return [3 /*break*/, 4];
                                 case 3:
-                                    this.coinsAddedSubscription.unsubscribe();
+                                    this.unsubscribeIfUndefined(this.coinsAddedSubscription);
                                     this.crowBalance = null;
                                     _a.label = 4;
                                 case 4: return [2 /*return*/];
@@ -880,8 +880,8 @@ var CrowBalanceComponent = /** @class */ (function () {
                     }); });
                 }
                 else {
-                    this.accountSubscription.unsubscribe();
-                    this.coinsAddedSubscription.unsubscribe();
+                    this.unsubscribeIfUndefined(this.accountSubscription);
+                    this.unsubscribeIfUndefined(this.coinsAddedSubscription);
                     this.crowBalance = null;
                 }
                 return [2 /*return*/];
@@ -901,11 +901,16 @@ var CrowBalanceComponent = /** @class */ (function () {
     }
     // async ngAfterViewInit() {
     // }
+    CrowBalanceComponent.prototype.unsubscribeIfUndefined = function (subscription) {
+        if (subscription != undefined) {
+            subscription.unsubscribe();
+        }
+    };
     CrowBalanceComponent.prototype.ngOnDestroy = function () {
-        this.web3Subscription.unsubscribe();
-        this.appStateSubscription.unsubscribe();
-        this.accountSubscription.unsubscribe();
-        this.coinsAddedSubscription.unsubscribe();
+        this.unsubscribeIfUndefined(this.appStateSubscription);
+        this.unsubscribeIfUndefined(this.web3Subscription);
+        this.unsubscribeIfUndefined(this.accountSubscription);
+        this.unsubscribeIfUndefined(this.coinsAddedSubscription);
     };
     CrowBalanceComponent = __decorate([
         Object(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
@@ -2464,6 +2469,7 @@ var TerminalComponent = /** @class */ (function () {
         this.shootingCrows = false;
         this.cursor = '_';
         this.firstLoad = true;
+        this.transactionPending = false;
         /* Terminal Messages */
         this.prompt = '[c-c-c-c] $:';
         this.welcomeMessage = 'Welcome to the CCCC - Crow Command Centre Control\nThe time has come to fight back against the pesky crows^1000\n\n' +
@@ -2590,7 +2596,7 @@ var TerminalComponent = /** @class */ (function () {
                         arg = arg.trim();
                         args = arg.split(' ');
                         output = this.invalidCommandMessage + this.getHelpMessage;
-                        if (!args.length) return [3 /*break*/, 18];
+                        if (!args.length) return [3 /*break*/, 20];
                         _a = args[0].toLowerCase();
                         switch (_a) {
                             case 'shootcrows': return [3 /*break*/, 1];
@@ -2598,10 +2604,10 @@ var TerminalComponent = /** @class */ (function () {
                             case 'checkconnection': return [3 /*break*/, 3];
                             case 'balance': return [3 /*break*/, 4];
                             case 'purchasecrowcoins': return [3 /*break*/, 12];
-                            case 'help': return [3 /*break*/, 16];
-                            case 'exit': return [3 /*break*/, 17];
+                            case 'help': return [3 /*break*/, 18];
+                            case 'exit': return [3 /*break*/, 19];
                         }
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
                     case 1:
                         this.addOutput(this.loadingCrowsMessage);
                         setTimeout(function () {
@@ -2610,16 +2616,16 @@ var TerminalComponent = /** @class */ (function () {
                         }, 3000);
                         output = null;
                         // }
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
                     case 2:
                         output = this.infoMessage;
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
                     case 3:
                         output = this.web3State + '^400\n';
                         if (this.account) {
                             output += 'Account: ' + this.account;
                         }
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
                     case 4:
                         if (!(this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete)) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.service.getEthBalanceAsync()];
@@ -2641,16 +2647,20 @@ var TerminalComponent = /** @class */ (function () {
                     case 9:
                         output = '\nUnable to retrieve balance';
                         _b.label = 10;
-                    case 10: return [3 /*break*/, 18];
+                    case 10: return [3 /*break*/, 20];
                     case 11:
                         output = this.web3State;
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
                     case 12:
-                        if (!(this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete)) return [3 /*break*/, 15];
-                        if (!(args.length == 2 && parseInt(args[1]) != NaN)) return [3 /*break*/, 14];
+                        if (!(this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete)) return [3 /*break*/, 17];
+                        if (!(args.length == 2 && parseInt(args[1]) != NaN)) return [3 /*break*/, 16];
+                        if (!this.transactionPending) return [3 /*break*/, 13];
+                        output = 'Unable to purchase tokens until your previous deposit is complete';
+                        return [3 /*break*/, 20];
+                    case 13:
                         this.addOutput('Please accept the request on MetaMask...');
                         return [4 /*yield*/, this.service.getNonce()];
-                    case 13:
+                    case 14:
                         count = _b.sent();
                         this.service.purchaseTokensAsync(null, args[1], function () { });
                         txSubscription = this.service.txStatus$.subscribe(function (txInfo) {
@@ -2686,20 +2696,21 @@ var TerminalComponent = /** @class */ (function () {
                             }
                         });
                         output = null;
-                        return [3 /*break*/, 18];
-                    case 14:
-                        output = this.purchaseCoinsHelpMessage;
-                        return [3 /*break*/, 18];
-                    case 15:
-                        output = this.web3State;
-                        return [3 /*break*/, 18];
+                        return [3 /*break*/, 20];
+                    case 15: return [3 /*break*/, 17];
                     case 16:
-                        output = this.helpMessage;
-                        return [3 /*break*/, 18];
+                        output = this.purchaseCoinsHelpMessage;
+                        return [3 /*break*/, 20];
                     case 17:
+                        output = this.web3State;
+                        return [3 /*break*/, 20];
+                    case 18:
+                        output = this.helpMessage;
+                        return [3 /*break*/, 20];
+                    case 19:
                         this.closeTerminal();
-                        return [3 /*break*/, 18];
-                    case 18: return [2 /*return*/, Promise.resolve(output)];
+                        return [3 /*break*/, 20];
+                    case 20: return [2 /*return*/, Promise.resolve(output)];
                 }
             });
         });
@@ -2778,18 +2789,25 @@ var TerminalComponent = /** @class */ (function () {
                             case 1:
                                 count = _a.sent();
                                 this.service.claimTokensAsync(score.toString());
+                                this.transactionPending = true;
                                 txSubscription = this.service.txStatus$.subscribe(function (txInfo) {
                                     if (txInfo != null) {
                                         switch (txInfo.status) {
                                             case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].hash:
                                                 if (txInfo.nonce == count) {
                                                     _this.addOutput('Depositing Coins into your wallet...', true);
+                                                }
+                                                break;
+                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].confirmed:
+                                                if (txInfo.nonce == count) {
+                                                    _this.transactionPending = false;
                                                     count = 0;
                                                     txSubscription.unsubscribe();
                                                 }
                                                 break;
                                             case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].error:
                                                 if (txInfo.nonce == count) {
+                                                    _this.transactionPending = false;
                                                     _this.addOutput('Maybe next time you will want the coins', true);
                                                     count = 0;
                                                     txSubscription.unsubscribe();

@@ -35,13 +35,13 @@ export class CrowBalanceComponent {
               this.crowBalance += amount;
             });
           }else{
-            this.coinsAddedSubscription.unsubscribe();
+            this.unsubscribeIfUndefined(this.coinsAddedSubscription);
             this.crowBalance = null;
           }
         });
       } else {
-        this.accountSubscription.unsubscribe();
-        this.coinsAddedSubscription.unsubscribe();
+        this.unsubscribeIfUndefined(this.accountSubscription);
+        this.unsubscribeIfUndefined(this.coinsAddedSubscription);
         this.crowBalance = null;
       }
     });
@@ -63,11 +63,17 @@ export class CrowBalanceComponent {
 
   // }
 
+  unsubscribeIfUndefined(subscription: Subscription){
+    if(subscription != undefined){
+      subscription.unsubscribe();
+    }
+  }
+
   ngOnDestroy(): void {
-    this.web3Subscription.unsubscribe();
-    this.appStateSubscription.unsubscribe();
-    this.accountSubscription.unsubscribe();
-    this.coinsAddedSubscription.unsubscribe();
+    this.unsubscribeIfUndefined(this.appStateSubscription);
+    this.unsubscribeIfUndefined(this.web3Subscription);
+    this.unsubscribeIfUndefined(this.accountSubscription);
+    this.unsubscribeIfUndefined(this.coinsAddedSubscription);
   }
 
 }

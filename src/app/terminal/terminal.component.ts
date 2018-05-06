@@ -44,6 +44,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   accountSubscription: Subscription;
   account;
   firstLoad = true;
+  transactionPending = false;
 
   crowBalance: string;
 
@@ -188,45 +189,51 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
         case 'purchasecrowcoins':
           if (this.web3State == Web3LoadingStatus.complete) {
             if (args.length == 2 && parseInt(args[1]) != NaN) {
-              this.addOutput('Please accept the request on MetaMask...')
+              if (this.transactionPending) {
+                output = 'Unable to purchase tokens until your previous deposit is complete';
+                break;
+              } else {
 
-              var count = await this.service.getNonce();
-              this.service.purchaseTokensAsync(null, args[1], function () { });
-              var txSubscription: Subscription;
-              txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
-                if (txInfo != null) {
-                  switch (txInfo.status) {
-                    case TxStatus.hash:
-                      if (txInfo.nonce == count) {
-                        this.addOutput('Purchase sent^200\nPlease wait...');
-                      }
-                      break;
-                    case TxStatus.receipt:
-                      if (txInfo.nonce == count) {
-                        // this.addOutput('Awaiting confirmation...');
+                this.addOutput('Please accept the request on MetaMask...')
+
+                var count = await this.service.getNonce();
+                this.service.purchaseTokensAsync(null, args[1], function () { });
+                var txSubscription: Subscription;
+                txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
+                  if (txInfo != null) {
+                    switch (txInfo.status) {
+                      case TxStatus.hash:
+                        if (txInfo.nonce == count) {
+                          this.addOutput('Purchase sent^200\nPlease wait...');
+                        }
                         break;
-                      }
-                    case TxStatus.confirmed:
-                      if (txInfo.nonce == count) {
-                        this.addOutput('<span style="color:green">Purchase successful</span>', true);
-                        txSubscription.unsubscribe();
-                        count = 0;
+                      case TxStatus.receipt:
+                        if (txInfo.nonce == count) {
+                          // this.addOutput('Awaiting confirmation...');
+                          break;
+                        }
+                      case TxStatus.confirmed:
+                        if (txInfo.nonce == count) {
+                          this.addOutput('<span style="color:green">Purchase successful</span>', true);
+                          txSubscription.unsubscribe();
+                          count = 0;
+                          break;
+                        }
+                      case TxStatus.error:
+                        if (txInfo.nonce == count) {
+                          this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
+                          txSubscription.unsubscribe();
+                          count = 0;
+                        }
                         break;
-                      }
-                    case TxStatus.error:
-                      if (txInfo.nonce == count) {
-                        this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
-                        txSubscription.unsubscribe();
-                        count = 0;
-                      }
-                      break;
-                    default:
-                      break;
+                      default:
+                        break;
+                    }
                   }
-                }
-              });
-              output = null;
-              break;
+                });
+                output = null;
+                break;
+              }
             } else {
               output = this.purchaseCoinsHelpMessage;
               break;
@@ -307,18 +314,25 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
       var count = await this.service.getNonce();
       this.service.claimTokensAsync(score.toString());
       var txSubscription: Subscription;
+      this.transactionPending = true;
       txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
         if (txInfo != null) {
           switch (txInfo.status) {
             case TxStatus.hash:
               if (txInfo.nonce == count) {
                 this.addOutput('Depositing Coins into your wallet...', true);
+              }
+              break;
+            case TxStatus.confirmed:
+              if (txInfo.nonce == count) {
+                this.transactionPending = false;
                 count = 0;
                 txSubscription.unsubscribe();
               }
               break;
             case TxStatus.error:
               if (txInfo.nonce == count) {
+                this.transactionPending = false;
                 this.addOutput('Maybe next time you will want the coins', true);
                 count = 0;
                 txSubscription.unsubscribe();
