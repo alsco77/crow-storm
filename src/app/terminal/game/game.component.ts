@@ -1,6 +1,6 @@
 
 import { Component, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
-import { CommunicateService} from '../../services/communicate.service';
+import { CommunicateService } from '../../services/communicate.service';
 import { AppState } from '../../classes/app-state.enum';
 import { Subscription } from 'rxjs/subscription'
 
@@ -303,7 +303,7 @@ export class PlayState {
 
     //  Check for victory
     if (this.invaders.length === 0) {
-      game.score += this.level * 50;
+      game.score += this.level * 100;
       game.level += 1;
       game.moveToState(new LevelIntroState(game.level));
     }
@@ -318,7 +318,7 @@ export class PlayState {
     var shooterImg = new Image();
     shooterImg.src = "assets/shooter.png";
     ctx.drawImage(shooterImg, this.ship.x - (this.ship.width / 2), this.ship.y - (this.ship.height / 2), this.ship.width, this.ship.height);
-    
+
 
     //  Draw invaders.
     var crowImg = new Image();
@@ -334,7 +334,7 @@ export class PlayState {
     eggImg.src = "assets/egg.png";
     for (var i = 0; i < this.bombs.length; i++) {
       var bomb = this.bombs[i];
-      ctx.drawImage(eggImg, bomb.x - 2, bomb.y -2, 8, 8);
+      ctx.drawImage(eggImg, bomb.x - 2, bomb.y - 2, 8, 8);
     }
 
 
@@ -355,7 +355,7 @@ export class PlayState {
     var info = "Lives: ";
     ctx.textAlign = "left";
     ctx.fillText(info, game.gameBounds.right - 40 - (game.lives * 25), 22);
-    for(var i = 0; i < game.lives; i++){
+    for (var i = 0; i < game.lives; i++) {
       ctx.drawImage(shooterImg, game.gameBounds.right - (i * 25), 10, 25, 25);
     }
 
@@ -409,12 +409,6 @@ export class WelcomeState {
   constructor() { }
 
   enter(game) {
-    game.sounds = new Sounds();
-    game.sounds.init();
-    game.sounds.loadSound('shoot', '/assets/sounds/pistol.wav');
-    game.sounds.loadSound('bang', '/assets/sounds/bang.wav');
-    game.sounds.loadSound('crow', '/assets/sounds/crow.wav');
-    game.sounds.loadSound('hit', '/assets/sounds/hurt.wav');
   }
   update(game, dt) { };
 
@@ -430,9 +424,9 @@ export class WelcomeState {
 
     ctx.fillText("Move with arrow keys, fire with the space bar.", game.width / 2, game.height / 2)
     ctx.fillText("The crows get faster and drop more eggs as you clear each horde!", game.width / 2, game.height / 2 + 25);
-  
- 
-    ctx.fillText("Press 'Space' to start.", game.width / 2, game.height / 2  + 80);
+
+
+    ctx.fillText("Press 'Space' to start.", game.width / 2, game.height / 2 + 80);
   }
   keyDown(game, keyCode) {
     if (keyCode == 32) /*space*/ {
@@ -551,11 +545,12 @@ export class Sounds {
   //  The audio context.
   audioContext = null;
   //  The actual set of loaded sounds.
-  sounds = {};
+  sounds;
   mute;
 
   constructor() {
     this.mute = false;
+    this.sounds = {};
   }
 
   init() {
@@ -662,19 +657,20 @@ export class GameComponent implements AfterViewInit, OnDestroy {
   gameCanvas = null;
 
   //  All sounds.
-  sounds = null;
+  sounds: Sounds;
+  loaded = false;
 
   stateSubscription: Subscription;
 
-  constructor(private comService: CommunicateService){
+  constructor(private comService: CommunicateService) {
     this.stateSubscription = this.comService.appState$.subscribe((state: AppState) => {
-      if(state != AppState.game){
+      if (state != AppState.game) {
         this.moveToState(new GameOverState());
       }
     })
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     this.startGame();
   }
 
@@ -690,6 +686,14 @@ export class GameComponent implements AfterViewInit, OnDestroy {
     this.canvas.nativeElement.height = 600;
 
 
+    setTimeout(() => {
+      this.sounds = new Sounds();
+      this.sounds.init();
+      this.sounds.loadSound('shoot', '/assets/sounds/pistol.wav');
+      this.sounds.loadSound('bang', '/assets/sounds/bang.wav');
+      this.sounds.loadSound('crow', '/assets/sounds/crow.wav');
+      this.sounds.loadSound('hit', '/assets/sounds/hurt.wav');
+    }, 0);
 
     // this.backgroundCanvas.nativeElement.width = 700;
     // this.backgroundCanvas.nativeElement.height = 600;
@@ -735,7 +739,7 @@ export class GameComponent implements AfterViewInit, OnDestroy {
     //  Set the game canvas.
     this.gameCanvas = gameCanvas;
 
-    
+
 
     //  Set the game width and height.
     this.width = gameCanvas.width;
@@ -771,7 +775,7 @@ export class GameComponent implements AfterViewInit, OnDestroy {
     this.stateStack.push(state);
   };
 
-  finishGame(){
+  finishGame() {
     this.finalScore.emit(this.score);
   }
 
@@ -786,10 +790,12 @@ export class GameComponent implements AfterViewInit, OnDestroy {
     this.config.debugMode = /debug=true/.test(window.location.href);
 
     //  Start the game loop.
-    this.intervalId = setInterval(() => { 
-      this.gameLoop(); 
+    this.intervalId = setInterval(() => {
+      this.gameLoop();
     }, 1000 / this.config.fps);
-
+    setTimeout(() => {
+      this.loaded = true;
+    }, 0);
   };
 
   //  Returns the current state.

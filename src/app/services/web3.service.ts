@@ -96,9 +96,11 @@ export class Web3Service implements OnDestroy {
       console.log("Web3Service: loadedaccounts: " + JSON.stringify(accs));
       if (accs[0] !== this.account.value) {
         console.log("Web3Service: new account found: " + JSON.stringify(accs[0]));
-        if (this.web3Status.value == Web3LoadingStatus.noAccountsAvailable) {
-          this.web3Status.next(Web3LoadingStatus.complete);
-        } else if (this.web3Status.value == Web3LoadingStatus.complete) {
+        if(accs[0] != undefined){
+          if (this.web3Status.value != Web3LoadingStatus.complete) {
+            this.web3Status.next(Web3LoadingStatus.complete);
+          }
+        } else {
           this.web3Status.next(Web3LoadingStatus.noAccountsAvailable);
         }
         this.account.next(accs[0]);

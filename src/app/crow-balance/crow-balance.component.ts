@@ -16,6 +16,7 @@ export class CrowBalanceComponent {
 
   web3Subscription: Subscription;
   appStateSubscription: Subscription;
+  accountSubscription: Subscription;
 
   terminalIsOpen = false;
   isLoaded = false;
@@ -24,7 +25,13 @@ export class CrowBalanceComponent {
   constructor(private service: Web3Service, private comService: CommunicateService) {
     this.web3Subscription = this.service.web3Status$.subscribe(async (status: Web3LoadingStatus) => {
       if (status == Web3LoadingStatus.complete) {
-        this.crowBalance = await this.service.getTokenBalanceAsync();
+        this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
+          if (acc != undefined) {
+            this.crowBalance = await this.service.getTokenBalanceAsync();
+          }else{
+            this.crowBalance = null;
+          }
+        });
       }
       else {
         this.crowBalance = null;
@@ -51,6 +58,7 @@ export class CrowBalanceComponent {
   ngOnDestroy(): void {
     this.web3Subscription.unsubscribe();
     this.appStateSubscription.unsubscribe();
+    this.accountSubscription.unsubscribe();
   }
 
 }

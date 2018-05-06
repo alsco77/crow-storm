@@ -40,23 +40,26 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   web3Subscription: Subscription;
   accountSubscription: Subscription;
+  account;
+  firstLoad = true;
 
   crowBalance: string;
-  
+
   /* Terminal Messages */
   prompt = '[c-c-c-c] $:';
   welcomeMessage = 'Welcome to the CCCC - Crow Command Centre Control\nThe time has come to fight back against the pesky crows^1000\n\n' +
-    'Crow Command Centre Controls loading...^500\n `Calculating storm differentials...`^1000\n ' +
-    '`Calculating defense capabilities...`^1000\n\n'
+    'Crow Command Centre Controls loading...^500\n `Calculating storm differentials...`^800\n ' +
+    '`Hooking up to the network...`^800\n'
     + '';
   invalidCommandMessage = 'Command not recognised\n';
   getHelpMessage = '`Enter "help" for a list of available commands`';
   helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^400\n' +
-  '`command: "info"\t\t\t(What is going on?)`^400\n' +
-  '`command: "balance"\t\t(Check your balance)`^400\n' +
-  '`command: "help"\t\t\t(Get help)`^400\n\n' +
+    '`command: "info"\t\t\t(What is going on?)`^400\n' +
+    '`command: "balance"\t\t(Check your balance)`^400\n' +
+    '`command: "checkconnection"\t\t\t(Check MetaMask connection)`^400\n' +
+    '`command: "help"\t\t\t(Get help)`^400\n\n' +
     'Now lets take care of some crows!';
-  infoMessage = 'A giant horde of crows is descending on Melbourne...\n' + 
+  infoMessage = 'A giant horde of crows is descending on Melbourne...\n' +
     'If we let them get in to the city it will be a disaster!\n' +
     'Use your skills to clear them out and you will be rewarded with Crow Coins^300\n' +
     'Now enter the command \'shootcrows\' and lets take care of this problem!';
@@ -64,24 +67,28 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     '`e.g. shootcrows -difficulty medium...`^400\n' +
     '`e.g. shootcrows`';
   loadingCrowsMessage = 'Lets go shooting!^400\n `Prepping equipment...`^400\n' +
-      '`Setting up position...`^400\n\n ';
+    '`Setting up position...`^400\n\n ';
   unlockAccHelpMessage = '`command: "unlockaccount"`^400\n `Params: [-key] [pKey]`^400\n' +
     '`e.g. unlockaccount -key 0x23948729347892374...`';
 
   constructor(private service: Web3Service, private utils: Utils, private firebase: FirebaseService, private comService: CommunicateService) {
-    
+
   }
 
   async ngAfterViewInit() {
-    // this.addOutput(this.welcomeMessage + this.getHelpMessage, false);
-    this.addOutput('Hi', true);
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
+      
       this.web3State = status;
-      this.addOutput(status, true);
       if (status == Web3LoadingStatus.complete) {
+        if (this.firstLoad) {
+          // this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
+          this.addOutput('', true);
+          this.firstLoad = false;
+        }
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
           if (acc != undefined) {
+            this.account = acc;
             console.log("Terminal: account loaded: " + acc);
             const ethBalance = await this.service.getEthBalanceAsync();
             console.log("Terminal: eth balance: " + ethBalance);
@@ -91,7 +98,11 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           }
         });
       } else if (status != null) {
-
+        this.account = null;
+        if (this.firstLoad) {
+          this.firstLoad = false;
+          this.addOutput(this.welcomeMessage + '`<span style="color:red;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
+        }
       }
     });
   }
@@ -101,7 +112,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     this.accountSubscription.unsubscribe();
   }
 
-  closeTerminal(){
+  closeTerminal() {
     this.shootingCrows = false;
     this.comService.setState(AppState.home);
   }
@@ -114,9 +125,9 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
       this.addCommand(input);
       const output = await this.handleCommandAsync(input);
-      if(output == null){
+      if (output == null) {
         this.addOutput('');
-      }else{
+      } else {
         this.addOutput(output, true);
       }
     }
@@ -153,28 +164,34 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           //   //   output = account.address;
           //   // }
           // } else {
-            this.addOutput(this.loadingCrowsMessage);
-            setTimeout(() => {
-              this.shootingCrows = true;
-              this.comService.setState(AppState.game);
-            }, 3000);
-            output = null;
+          this.addOutput(this.loadingCrowsMessage);
+          setTimeout(() => {
+            this.shootingCrows = true;
+            this.comService.setState(AppState.game);
+          }, 3000);
+          output = null;
           // }
           break;
 
         case 'info':
           output = this.infoMessage;
           break;
+        case 'checkconnection':
+          output = this.web3State + '^400\n'
+          if(this.account){
+            output += 'Account: ' + this.account;
+          }
+          break;
         case 'balance':
-          if(this.web3State == Web3LoadingStatus.complete){
+          if (this.web3State == Web3LoadingStatus.complete) {
             const balWei = await this.service.getEthBalanceAsync();
             const crowWei = await this.service.getTokenBalanceAsync();
-            if(balWei && crowWei){
+            if (balWei && crowWei) {
               const balEth = await this.service.convertWeiToEth(balWei);
               const balCrow = await this.service.convertWeiToEth(crowWei);
               output = '\nEther balance:\t\t' + balEth + ' ETH\n' +
-              'CrowCoin balance:\t' + balCrow + ' CROW';
-            }else{
+                'CrowCoin balance:\t' + balCrow + ' CROW';
+            } else {
               output = '\nUnable to retrieve balance';
             }
             break;
@@ -213,11 +230,11 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  gameFinished(score){
+  gameFinished(score) {
     this.shootingCrows = false;
     this.comService.setState(AppState.terminal);
     this.addOutput('\nYour sacrifice has been noted!^400\n Would you like to claim your ' + score +
-    ' Crow Coins? [Y]es or [N]o^400\n', true);
+      ' Crow Coins? [Y]es or [N]o^400\n', true);
   }
 
   inputBlur() {
