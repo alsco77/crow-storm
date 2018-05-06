@@ -308,42 +308,48 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   async gameFinished(score) {
     this.shootingCrows = false;
     this.comService.setState(AppState.terminal);
-    this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
-      ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
-    setTimeout(async () => {
-      var count = await this.service.getNonce();
-      this.service.claimTokensAsync(score.toString());
-      var txSubscription: Subscription;
-      this.transactionPending = true;
-      txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
-        if (txInfo != null) {
-          switch (txInfo.status) {
-            case TxStatus.hash:
-              if (txInfo.nonce == count) {
-                this.addOutput('Depositing Coins into your wallet...', true);
-              }
-              break;
-            case TxStatus.confirmed:
-              if (txInfo.nonce == count) {
-                this.transactionPending = false;
-                count = 0;
-                txSubscription.unsubscribe();
-              }
-              break;
-            case TxStatus.error:
-              if (txInfo.nonce == count) {
-                this.transactionPending = false;
-                this.addOutput('Maybe next time you will want the coins', true);
-                count = 0;
-                txSubscription.unsubscribe();
-              }
-              break;
-            default:
-              break;
+    if (this.web3State == Web3LoadingStatus.complete) {
+      this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
+        ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
+      setTimeout(async () => {
+        var count = await this.service.getNonce();
+        this.service.claimTokensAsync(score.toString());
+        var txSubscription: Subscription;
+        this.transactionPending = true;
+        txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
+          if (txInfo != null) {
+            switch (txInfo.status) {
+              case TxStatus.hash:
+                if (txInfo.nonce == count) {
+                  this.addOutput('Depositing Coins into your wallet...', true);
+                }
+                break;
+              case TxStatus.confirmed:
+                if (txInfo.nonce == count) {
+                  this.transactionPending = false;
+                  count = 0;
+                  txSubscription.unsubscribe();
+                }
+                break;
+              case TxStatus.error:
+                if (txInfo.nonce == count) {
+                  this.transactionPending = false;
+                  this.addOutput('Maybe next time you will want the coins', true);
+                  count = 0;
+                  txSubscription.unsubscribe();
+                }
+                break;
+              default:
+                break;
+            }
           }
-        }
-      })
-    }, 600);
+        })
+      }, 600);
+    }else{
+      this.addOutput('\n<br/>Your sacrifice has been noted!^400\n You would have earned ' + score +
+        ' Crow Coins <span style="color:red;">If you had been connected to MetaMask</span>^400\n' +
+        ' Enter "checkconnection" to diagnose the issue^300', true);
+    }
   }
 
   inputBlur() {

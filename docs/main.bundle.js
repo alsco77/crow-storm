@@ -2778,50 +2778,57 @@ var TerminalComponent = /** @class */ (function () {
             return __generator(this, function (_a) {
                 this.shootingCrows = false;
                 this.comService.setState(__WEBPACK_IMPORTED_MODULE_8__classes_app_state_enum__["a" /* AppState */].terminal);
-                this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
-                    ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
-                setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
-                    var _this = this;
-                    var count, txSubscription;
-                    return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, this.service.getNonce()];
-                            case 1:
-                                count = _a.sent();
-                                this.service.claimTokensAsync(score.toString());
-                                this.transactionPending = true;
-                                txSubscription = this.service.txStatus$.subscribe(function (txInfo) {
-                                    if (txInfo != null) {
-                                        switch (txInfo.status) {
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].hash:
-                                                if (txInfo.nonce == count) {
-                                                    _this.addOutput('Depositing Coins into your wallet...', true);
-                                                }
-                                                break;
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].confirmed:
-                                                if (txInfo.nonce == count) {
-                                                    _this.transactionPending = false;
-                                                    count = 0;
-                                                    txSubscription.unsubscribe();
-                                                }
-                                                break;
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].error:
-                                                if (txInfo.nonce == count) {
-                                                    _this.transactionPending = false;
-                                                    _this.addOutput('Maybe next time you will want the coins', true);
-                                                    count = 0;
-                                                    txSubscription.unsubscribe();
-                                                }
-                                                break;
-                                            default:
-                                                break;
+                if (this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete) {
+                    this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
+                        ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
+                    setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+                        var _this = this;
+                        var count, txSubscription;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, this.service.getNonce()];
+                                case 1:
+                                    count = _a.sent();
+                                    this.service.claimTokensAsync(score.toString());
+                                    this.transactionPending = true;
+                                    txSubscription = this.service.txStatus$.subscribe(function (txInfo) {
+                                        if (txInfo != null) {
+                                            switch (txInfo.status) {
+                                                case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].hash:
+                                                    if (txInfo.nonce == count) {
+                                                        _this.addOutput('Depositing Coins into your wallet...', true);
+                                                    }
+                                                    break;
+                                                case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].confirmed:
+                                                    if (txInfo.nonce == count) {
+                                                        _this.transactionPending = false;
+                                                        count = 0;
+                                                        txSubscription.unsubscribe();
+                                                    }
+                                                    break;
+                                                case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].error:
+                                                    if (txInfo.nonce == count) {
+                                                        _this.transactionPending = false;
+                                                        _this.addOutput('Maybe next time you will want the coins', true);
+                                                        count = 0;
+                                                        txSubscription.unsubscribe();
+                                                    }
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
                                         }
-                                    }
-                                });
-                                return [2 /*return*/];
-                        }
-                    });
-                }); }, 600);
+                                    });
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); }, 600);
+                }
+                else {
+                    this.addOutput('\n<br/>Your sacrifice has been noted!^400\n You would have earned ' + score +
+                        ' Crow Coins <span style="color:red;">If you had been connected to MetaMask</span>^400\n' +
+                        ' Enter "checkconnection" to diagnose the issue^300', true);
+                }
                 return [2 /*return*/];
             });
         });
