@@ -2365,8 +2365,8 @@ var TerminalComponent = /** @class */ (function () {
                     _this.web3State = status;
                     if (status == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete) {
                         if (_this.firstLoad) {
-                            // this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
-                            _this.addOutput('', true);
+                            _this.addOutput(_this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + _this.getHelpMessage, true);
+                            // this.addOutput('', true);
                             _this.firstLoad = false;
                         }
                         _this.accountSubscription = _this.service.account$.subscribe(function (acc) { return __awaiter(_this, void 0, void 0, function () {

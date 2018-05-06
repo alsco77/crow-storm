@@ -84,8 +84,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
       this.web3State = status;
       if (status == Web3LoadingStatus.complete) {
         if (this.firstLoad) {
-          // this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
-          this.addOutput('', true);
+          this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
+          // this.addOutput('', true);
           this.firstLoad = false;
         }
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
