@@ -1,10 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Utils } from './utils';
 import { FirebaseService } from './firebase.service';
+import { CommunicateService } from './communicate.service';
 import { EthAccount } from '../classes/eth-account';
 import { Coin } from '../classes/coin';
 import { TransactionReceipt } from '../classes/transaction-receipt';
@@ -16,6 +18,24 @@ declare var web3;
 
 // tslint:disable-next-line
 const CrowdsaleAbi = [{ "constant": true, "inputs": [], "name": "rate", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "cap", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "weiRaised", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "capReached", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "wallet", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [{ "name": "_rate", "type": "uint256" }, { "name": "_cap", "type": "uint256" }, { "name": "_token", "type": "address" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "purchaser", "type": "address" }, { "indexed": true, "name": "beneficiary", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" }, { "indexed": false, "name": "amount", "type": "uint256" }], "name": "TokenPurchase", "type": "event" }];
+
+export class TxInfo {
+
+  status: TxStatus;
+  data: string;
+
+  constructor(status: TxStatus, data: string){
+    this.status = status;
+    this.data = data;
+  }
+}
+
+export enum TxStatus{
+  hash = "hash",
+  receipt = "receipt",
+  confirmed = "confirmed",
+  error = "error"
+}
 
 @Injectable()
 export class Web3Service implements OnDestroy {
@@ -42,8 +62,11 @@ export class Web3Service implements OnDestroy {
   public account = new BehaviorSubject<string>(null);
   public account$ = this.account.asObservable();
 
+  public txStatus = new Subject<TxInfo>();
+  public txStatus$ = this.txStatus.asObservable();
 
-  constructor(private utils: Utils, private firebase: FirebaseService) {
+
+  constructor(private utils: Utils, private firebase: FirebaseService, private comService: CommunicateService) {
     if (typeof web3 !== 'undefined') {
       this.web3js = new Web3(web3.currentProvider);
       this.isMetaMask = true;
@@ -96,7 +119,7 @@ export class Web3Service implements OnDestroy {
       console.log("Web3Service: loadedaccounts: " + JSON.stringify(accs));
       if (accs[0] !== this.account.value) {
         console.log("Web3Service: new account found: " + JSON.stringify(accs[0]));
-        if(accs[0] != undefined){
+        if (accs[0] != undefined) {
           if (this.web3Status.value != Web3LoadingStatus.complete) {
             this.web3Status.next(Web3LoadingStatus.complete);
           }
@@ -182,34 +205,68 @@ export class Web3Service implements OnDestroy {
     return Promise.resolve(rawTransaction);
   }
 
-  async convertWeiToEth(wei: string){
+  async convertWeiToEth(wei: string) {
     return Promise.resolve(this.web3js.utils.fromWei(wei, 'ether'));
   }
 
-  async purchaseTokensAsync(userAddress: string, userPrivKey: string, saleContractAddress: string, weiAmountHex: string,
-    gasPriceGwei: number, gasLimit: number, successCallback: Function): Promise<TransactionReceipt> {
+  async purchaseTokensAsync(userAddress: string, amount: string, successCallback: Function): Promise<TransactionReceipt> {
     try {
-      const rawTransaction = await this.getPurchaseTokensTransaction(userAddress, saleContractAddress, weiAmountHex,
-        gasPriceGwei, gasLimit);
+      userAddress = this.account.value;
+      const ethAmount = (parseInt(amount) / this.crowCoin.ratio).toString();
+      const weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(ethAmount))
+      var rawTransaction = await this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex,
+        91, 250000);
+      console.log('evaluating cost of tx:' + JSON.stringify(rawTransaction));
+      const gasLimit = await this.estimateGasAsync(rawTransaction);
+      rawTransaction = await this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex,
+        91, gasLimit);
+
       console.log(`Raw tx: \n${JSON.stringify(rawTransaction, null, '\t')}`);
       this.firebase.logTokenPurchaseTxCreated(userAddress, rawTransaction);
 
-      userPrivKey = this.utils.getNakedAddress(userPrivKey);
-      const privKey = new Buffer(userPrivKey, 'hex');
+      // userPrivKey = this.utils.getNakedAddress(userPrivKey);
+      // const privKey = new Buffer(userPrivKey, 'hex');
 
-      const tx = new Tx(rawTransaction);
-      tx.sign(privKey);
-      const serializedTxHex = tx.serialize().toString('hex');
+      // const tx = new Tx(rawTransaction);
+      // tx = tx.sign();
+      // const serializedTxHex = tx.serialize().toString('hex');
 
-      console.log(`Sending signed tx: ${serializedTxHex.toString('hex')}`);
-      this.firebase.logTokenPurchaseTxSent(userAddress, serializedTxHex.toString('hex'));
+      // console.log(`Sending signed tx: ${serializedTxHex.toString('hex')}`);
+      // this.firebase.logTokenPurchaseTxSent(userAddress, serializedTxHex.toString('hex'));
 
-      const receipt = await this.web3js.eth.sendSignedTransaction('0x' + serializedTxHex.toString('hex'))
-        .on('transactionHash', hash => {
-          successCallback(hash);
+      const receipt = await this.web3js.eth.sendTransaction(rawTransaction)
+        .on('transactionHash', (hash) => {
+          this.txStatus.next(new TxInfo(TxStatus.hash, hash));
+        })
+        .on('receipt', (receipt) => {
+          this.txStatus.next(new TxInfo(TxStatus.receipt, receipt.transactionHash));
+        })
+        .on('confirmation', (confirmationNumber, receipt) => {
+          if(confirmationNumber == 0){
+            this.txStatus.next(new TxInfo(TxStatus.confirmed, receipt.transactionHash));
+            this.comService.addCoins(parseInt(amount));
+          }
+        })
+        .on('error', () => {
+          this.txStatus.next(new TxInfo(TxStatus.error, null));
         });
-      console.log(`Receipt: \n${JSON.stringify(receipt, null, '\t')}`);
-      this.firebase.logTokenPurchaseSuccess(userAddress, JSON.stringify(receipt));
+
+
+      //     , (error, hash) => {
+      //     console.log("send transaction:" + error);
+      //     console.log("send transaction:" + hash);
+      //     if(hash){
+      //       this.comService.addCoins(parseInt(amount));
+      //     }
+      // });  
+
+      // const receipt = await this.web3js.eth.sendSignedTransaction('0x' + serializedTxHex.toString('hex'))
+      //   .on('transactionHash', hash => {
+      //     successCallback(hash);
+      //   });F
+      // console.log(`Receipt: \n${JSON.stringify(receipt, null, '\t')}`);
+      // this.firebase.logTokenPurchaseSuccess(userAddress, JSON.stringify(receipt));
+      console.log("sending transaction receipt: " + JSON.stringify(receipt));
       return Promise.resolve(receipt);
     } catch (e) {
       this.firebase.logTokenPurchaseError(userAddress, JSON.stringify(e));

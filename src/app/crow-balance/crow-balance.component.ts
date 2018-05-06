@@ -16,24 +16,32 @@ export class CrowBalanceComponent {
 
   web3Subscription: Subscription;
   appStateSubscription: Subscription;
+  coinsAddedSubscription: Subscription;
   accountSubscription: Subscription;
 
   terminalIsOpen = false;
   isLoaded = false;
-  crowBalance: string;
+  crowBalance: number;
 
   constructor(private service: Web3Service, private comService: CommunicateService) {
     this.web3Subscription = this.service.web3Status$.subscribe(async (status: Web3LoadingStatus) => {
       if (status == Web3LoadingStatus.complete) {
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
           if (acc != undefined) {
-            this.crowBalance = await this.service.getTokenBalanceAsync();
+            const crowBalanceWei = await this.service.getTokenBalanceAsync();
+            const crowBalanceString = await this.service.convertWeiToEth(crowBalanceWei);
+            this.crowBalance = parseInt(crowBalanceString);
+            this.coinsAddedSubscription = this.comService.coinsAdded$.subscribe((amount: number) => {
+              this.crowBalance += amount;
+            });
           }else{
+            this.coinsAddedSubscription.unsubscribe();
             this.crowBalance = null;
           }
         });
-      }
-      else {
+      } else {
+        this.accountSubscription.unsubscribe();
+        this.coinsAddedSubscription.unsubscribe();
         this.crowBalance = null;
       }
     });
@@ -59,6 +67,7 @@ export class CrowBalanceComponent {
     this.web3Subscription.unsubscribe();
     this.appStateSubscription.unsubscribe();
     this.accountSubscription.unsubscribe();
+    this.coinsAddedSubscription.unsubscribe();
   }
 
 }

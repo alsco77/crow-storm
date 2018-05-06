@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@ang
 
 import { Subscription } from 'rxjs/subscription'
 
-import { Web3Service } from '../services/web3.service';
+import { Web3Service, TxStatus, TxInfo } from '../services/web3.service';
 import { FirebaseService } from '../services/firebase.service';
 import { CommunicateService } from '../services/communicate.service';
 import { Utils } from '../services/utils';
@@ -58,13 +58,14 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^400\n' +
     '`command: "info"\t\t\t(What is going on?)`^400\n' +
     '`command: "balance"\t\t(Check your balance)`^400\n' +
+    '`command: "purchasecrowcoins [amount]"\t\t(Purchase crow coins)`^400\n' +
     '`command: "checkconnection"\t\t\t(Check MetaMask connection)`^400\n' +
     '`command: "help"\t\t\t(Get help)`^400\n\n' +
     'Now lets take care of some crows!';
   infoMessage = 'A giant horde of crows is descending on Melbourne...\n' +
     'If we let them get in to the city it will be a disaster!\n' +
     'Use your skills to clear them out and you will be rewarded with Crow Coins^300\n' +
-    'Now enter the command \'shootcrows\' and lets tget to work!';
+    'Now enter the command \"shootcrows\" and lets get to work!';
   shootCrowsHelpMessage = '`command: "shootcrows"`^400\n `Params: [-difficulty] ["easy", "medium", "hard"]`^400\n' +
     '`e.g. shootcrows -difficulty medium...`^400\n' +
     '`e.g. shootcrows`';
@@ -72,6 +73,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     '`Setting up position...`^400\n\n ';
   unlockAccHelpMessage = '`command: "unlockaccount"`^400\n `Params: [-key] [pKey]`^400\n' +
     '`e.g. unlockaccount -key 0x23948729347892374...`';
+  purchaseCoinsHelpMessage = '`command: "purchasecrowcoins [amount]"`^400\n' +
+    '`e.g. purchasecrowcoins 800`';
 
   constructor(private service: Web3Service, private utils: Utils, private firebase: FirebaseService, private comService: CommunicateService) {
 
@@ -80,12 +83,12 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   async ngAfterViewInit() {
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
-      
+
       this.web3State = status;
       if (status == Web3LoadingStatus.complete) {
         if (this.firstLoad) {
-          this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
-          // this.addOutput('', true);
+          // this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
+          this.addOutput('', true);
           this.firstLoad = false;
         }
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
@@ -178,7 +181,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           break;
         case 'checkconnection':
           output = this.web3State + '^400\n'
-          if(this.account){
+          if (this.account) {
             output += 'Account: ' + this.account;
           }
           break;
@@ -195,6 +198,49 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
               output = '\nUnable to retrieve balance';
             }
             break;
+          }
+          output = this.web3State;
+          break;
+        case 'purchasecrowcoins':
+          if (this.web3State == Web3LoadingStatus.complete) {
+            if (args.length == 2 && parseInt(args[1]) != NaN) {
+              this.addOutput('Please accept the request on MetaMask...')
+              this.service.purchaseTokensAsync(null, args[1], function () { });
+              // console.log("terminal receipt: " + JSON.stringify(receipt));
+              
+              var hash;
+              const txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
+                switch (txInfo.status) {
+                  case TxStatus.hash:
+                    hash = txInfo.data;
+                    this.addOutput('Purchase sent...');
+                    break;
+                  case TxStatus.receipt:
+                    if(hash = txInfo.data){
+                      this.addOutput('Awaiting confirmation...');
+                      break;
+                    }
+                  case TxStatus.confirmed:
+                    if(hash == txInfo.data){
+                      this.addOutput('<span style="color:green">Purchase successful</span>', true);
+                      txSubscription.unsubscribe();
+                      break;
+                    }
+                  case TxStatus.error:
+                    
+                      this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
+                      txSubscription.unsubscribe();
+                      break;
+                  default:
+                    break;
+                }
+              });
+              output = null;
+              break;
+            } else {
+              output = this.purchaseCoinsHelpMessage;
+              break;
+            }
           }
           output = this.web3State;
           break;
@@ -233,25 +279,25 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  onInput(event){
+  onInput(event) {
     const commands = this.commands.filter(x => x.containsCommand);
-    if(commands.length > 0){
-      if(event.keyCode == 38){ //up
-        if(this.currentCommand == -1){
+    if (commands.length > 0) {
+      if (event.keyCode == 38) { //up
+        if (this.currentCommand == -1) {
           this.currentCommand = commands.length - 1;
-        }else if(this.currentCommand > 0){
+        } else if (this.currentCommand > 0) {
           this.currentCommand -= 1;
         }
-        if(this.currentCommand >= 0 && commands[this.currentCommand]){
+        if (this.currentCommand >= 0 && commands[this.currentCommand]) {
           this.currentInput = commands[this.currentCommand].command;
         }
-      }else if (event.keyCode == 40){ //down
-        if(this.currentCommand != -1){
+      } else if (event.keyCode == 40) { //down
+        if (this.currentCommand != -1) {
           this.currentCommand += 1;
-          if(this.currentCommand >= commands.length){
+          if (this.currentCommand >= commands.length) {
             this.currentCommand = -1;
             this.currentInput = '';
-          }else{
+          } else {
             this.currentInput = commands[this.currentCommand].command;
           }
         }
@@ -262,7 +308,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   gameFinished(score) {
     this.shootingCrows = false;
     this.comService.setState(AppState.terminal);
-    this.addOutput('\nYour sacrifice has been noted!^400\n Would you like to claim your ' + score +
+    this.addOutput('\n<br/>Your sacrifice has been noted!^400\n Would you like to claim your ' + score +
       ' Crow Coins? [Y]es or [N]o^400\n', true);
   }
 
