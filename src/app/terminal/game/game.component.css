@@ -1,7 +1,24 @@
 #gameCanvas {
     /* background-color:rgba(0,0,0,0.8); */
-    background-image: url('/assets/backdrop.png')
+    background-image: url('/assets/backdropBlue.png');
+    /* background: none; */
 }
+
+#gameCanvas, #backgroundCanvas {
+    position: fixed;
+}
+/* #background{
+
+    background-image: url('/assets/backdrop.png');
+    content: "";
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1;   
+  } */
 
 #muteLink {
     position: absolute;
@@ -13,3 +30,6 @@
 #gamecontainer {
     height: 600px;
 }
+
+  
+  

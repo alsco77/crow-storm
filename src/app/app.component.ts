@@ -19,6 +19,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   terminalOpen = false;
   bounceIn = false;
+  bounceInTerminal = false;
   terminalSubscription: Subscription;
 
   constructor(private comService: CommunicateService) {
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
       } else {
         if(this.terminalOpen){
           this.bounceIn = true;
+          this.bounceInTerminal = false;
           this.terminalOpen = false;
         }
       }
@@ -73,6 +75,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   openTerminal() {
     this.comService.setState(AppState.terminal);
+    setTimeout(() => {
+      this.bounceInTerminal = true;
+    }, 500);
     localStorage.setItem('hasOpened', 'true');
   }
 

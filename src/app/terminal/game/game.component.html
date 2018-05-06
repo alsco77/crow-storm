@@ -1,5 +1,7 @@
 <div id="gamecontainer">
-  <canvas #gameCanvas id="gameCanvas"></canvas>
+    <!-- <div id="background"></div> -->
+    <!-- <canvas #backgroundCanvas id="backgroundCanvas"></canvas> -->
+    <canvas #gameCanvas id="gameCanvas"></canvas>
   <a id="muteLink" *ngIf="sounds != null" href="#" (click)="toggleMute()">
       <mat-icon *ngIf="sounds.mute"><i class="material-icons">volume_off</i></mat-icon>
       <mat-icon *ngIf="!sounds.mute"><i class="material-icons">volume_ups</i></mat-icon>

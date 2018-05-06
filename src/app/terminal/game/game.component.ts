@@ -1,6 +1,8 @@
 
-import { Component, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommunicateService} from '../../services/communicate.service';
+import { AppState } from '../../classes/app-state.enum';
+import { Subscription } from 'rxjs/subscription'
 
 declare var webkitAudioContext: any;
 
@@ -234,7 +236,7 @@ export class PlayState {
           //  this rocket again.
           this.rockets.splice(j--, 1);
           bang = true;
-          game.score += this.config.pointsPerInvader;
+          game.score += (this.config.pointsPerInvader + (this.level - 1));
           game.crowsKilled += 1;
           break;
         }
@@ -346,14 +348,20 @@ export class PlayState {
 
     //  Draw info.
     var textYpos = game.gameBounds.bottom + ((game.height - game.gameBounds.bottom) / 2) + 14 / 2;
+    var livesYpos = game.gameBounds.top - 10;
     ctx.font = "14px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillStyle = '#f0f0f0';
-    var info = "Lives: " + game.lives;
+    ctx.fillStyle = '#0a0a0a';
+
+    var info = "Lives: ";
     ctx.textAlign = "left";
-    ctx.fillText(info, game.gameBounds.left, textYpos);
-    info = "Score: " + game.score + ", Level: " + game.level;
+    ctx.fillText(info, game.gameBounds.right - 40 - (game.lives * 25), 22);
+    for(var i = 0; i < game.lives; i++){
+      ctx.drawImage(shooterImg, game.gameBounds.right - (i * 25), 10, 25, 25);
+    }
+
+    info = "Score: " + game.score + ", Horde #: " + game.level;
     ctx.textAlign = "right";
-    ctx.fillText(info, game.gameBounds.right, textYpos);
+    ctx.fillText(info, (game.width / 2) + 90, 22);
 
     //  If we're in debug mode, draw bounds.
     if (this.config.debugMode) {
@@ -412,17 +420,19 @@ export class WelcomeState {
 
   draw(game, dt, ctx) {
 
-    //  Clear the background.
-    ctx.clearRect(0, 0, game.width, game.height);
 
     ctx.font = "30px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillStyle = '#f0f0f0';
+    ctx.fillStyle = '#0a0a0a';
     ctx.textBaseline = "center";
     ctx.textAlign = "center";
     ctx.fillText("Crow Invaders", game.width / 2, game.height / 2 - 40);
     ctx.font = "16px 'Andale Mono', Consolas, 'Courier New'";
 
-    ctx.fillText("Press 'Space' to start.", game.width / 2, game.height / 2);
+    ctx.fillText("Move with arrow keys, fire with the space bar.", game.width / 2, game.height / 2)
+    ctx.fillText("The crows get faster and drop more eggs as you clear each horde!", game.width / 2, game.height / 2 + 25);
+  
+ 
+    ctx.fillText("Press 'Space' to start.", game.width / 2, game.height / 2  + 80);
   }
   keyDown(game, keyCode) {
     if (keyCode == 32) /*space*/ {
@@ -470,10 +480,10 @@ export class LevelIntroState {
     ctx.clearRect(0, 0, game.width, game.height);
 
     ctx.font = "32px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillStyle = '#f0f0f0';
+    ctx.fillStyle = '#0a0a0a';
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
-    ctx.fillText("Level " + this.level, game.width / 2, game.height / 2 - 36);
+    ctx.fillText("Horde " + this.level, game.width / 2, game.height / 2 - 36);
     ctx.font = "24px 'Andale Mono', Consolas, 'Courier New'";
     ctx.fillText("Ready in " + this.countdownMessage, game.width / 2, game.height / 2);
     return;
@@ -492,7 +502,7 @@ export class GameOverState {
     ctx.clearRect(0, 0, game.width, game.height);
 
     ctx.font = "30px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillStyle = '#f0f0f0';
+    ctx.fillStyle = '#0a0a0a';
     ctx.textBaseline = "center";
     ctx.textAlign = "center";
     ctx.fillText("Game Over!", game.width / 2, game.height / 2 - 40);
@@ -528,7 +538,7 @@ export class PauseState {
     ctx.clearRect(0, 0, game.width, game.height);
 
     ctx.font = "14px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillStyle = '#f0f0f0';
+    ctx.fillStyle = '#0a0a0a';
     ctx.textBaseline = "middle";
     ctx.textAlign = "center";
     ctx.fillText("Paused", game.width / 2, game.height / 2);
@@ -602,12 +612,13 @@ export class Sounds {
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements AfterViewInit {
+export class GameComponent implements AfterViewInit, OnDestroy {
 
 
   instructions: "Move with arrow keys, fire with the space bar. The invaders get faster and drop more bombs as you complete each level!";
 
   @ViewChild('gameCanvas') canvas: ElementRef;
+  @ViewChild('backgroundCanvas') backgroundCanvas: ElementRef;
 
   @Output()
   finalScore: EventEmitter<number> = new EventEmitter<number>();
@@ -653,18 +664,41 @@ export class GameComponent implements AfterViewInit {
   //  All sounds.
   sounds = null;
 
-  constructor(private comService: CommunicateService){
+  stateSubscription: Subscription;
 
+  constructor(private comService: CommunicateService){
+    this.stateSubscription = this.comService.appState$.subscribe((state: AppState) => {
+      if(state != AppState.game){
+        this.moveToState(new GameOverState());
+      }
+    })
   }
 
   ngAfterViewInit(){
     this.startGame();
   }
 
+  ngOnDestroy(): void {
+    //Called once, before the instance is destroyed.
+    //Add 'implements OnDestroy' to the class.
+    this.stateSubscription.unsubscribe();
+  }
+
   startGame() {
 
     this.canvas.nativeElement.width = 700;
     this.canvas.nativeElement.height = 600;
+
+
+
+    // this.backgroundCanvas.nativeElement.width = 700;
+    // this.backgroundCanvas.nativeElement.height = 600;
+    // var ctx = this.backgroundCanvas.nativeElement.getContext("2d");
+    // //  Clear the background.
+    // ctx.clearRect(0, 0, 700, 600);
+    // var bgImg = new Image();
+    // bgImg.src = "assets/backdropTransparent.png";
+    // ctx.drawImage(bgImg, 0, 0, 700, 600);
 
     //  Create the game.
     // var game = new Game();
@@ -701,9 +735,13 @@ export class GameComponent implements AfterViewInit {
     //  Set the game canvas.
     this.gameCanvas = gameCanvas;
 
+    
+
     //  Set the game width and height.
     this.width = gameCanvas.width;
     this.height = gameCanvas.height;
+
+
 
     //  Set the state game bounds.
     this.gameBounds = {

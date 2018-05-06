@@ -64,8 +64,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   }
 
   async ngAfterViewInit() {
-    this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
-    // this.addOutput('Hi', true);
+    // this.addOutput(this.welcomeMessage + this.getHelpMessage, true);
+    this.addOutput('Hi', true);
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
       if (status == Web3LoadingStatus.complete) {
@@ -103,7 +103,11 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
       this.addCommand(input);
       const output = await this.handleCommandAsync(input);
-      this.addOutput(output, output != null);
+      if(output == null){
+        this.addOutput('');
+      }else{
+        this.addOutput(output, true);
+      }
     }
   }
 
@@ -139,8 +143,10 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           //   // }
           // } else {
             this.addOutput(this.loadingCrowsMessage);
-            this.shootingCrows = true;
-            this.comService.setState(AppState.game);
+            setTimeout(() => {
+              this.shootingCrows = true;
+              this.comService.setState(AppState.game);
+            }, 3000);
             output = null;
           // }
           break;
