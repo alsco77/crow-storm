@@ -12,6 +12,7 @@ import { Web3LoadingStatus } from '../classes/web3-loading-status.enum';
 
 import * as Typed from 'typed.js';
 import { AppState } from '../classes/app-state.enum';
+import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 
 
@@ -35,11 +36,13 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   cursor = '_';
 
+  web3State: Web3LoadingStatus;
+
   web3Subscription: Subscription;
   accountSubscription: Subscription;
 
   crowBalance: string;
-
+  
   /* Terminal Messages */
   prompt = '[c-c-c-c] $:';
   welcomeMessage = 'Welcome to the CCCC - Crow Command Centre Control\nThe time has come to fight back against the pesky crows^1000\n\n' +
@@ -48,9 +51,15 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     + '';
   invalidCommandMessage = 'Command not recognised\n';
   getHelpMessage = '`Enter "help" for a list of available commands`';
-  helpMessage = '\n\n `command: shootcrows`^400\n' +
-    '`command: help`^400\n\n' +
+  helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^400\n' +
+  '`command: "info"\t\t\t(What is going on?)`^400\n' +
+  '`command: "balance"\t\t(Check your balance)`^400\n' +
+  '`command: "help"\t\t\t(Get help)`^400\n\n' +
     'Now lets take care of some crows!';
+  infoMessage = 'A giant horde of crows is descending on Melbourne...\n' + 
+    'If we let them get in to the city it will be a disaster!\n' +
+    'Use your skills to clear them out and you will be rewarded with Crow Coins^300\n' +
+    'Now enter the command \'shootcrows\' and lets take care of this problem!';
   shootCrowsHelpMessage = '`command: "shootcrows"`^400\n `Params: [-difficulty] ["easy", "medium", "hard"]`^400\n' +
     '`e.g. shootcrows -difficulty medium...`^400\n' +
     '`e.g. shootcrows`';
@@ -68,6 +77,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     this.addOutput('Hi', true);
     this.web3Subscription = this.service.web3Status$.subscribe((status: Web3LoadingStatus) => {
       console.log("Terminal: Web3Status: " + status);
+      this.web3State = status;
       if (status == Web3LoadingStatus.complete) {
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
           if (acc != undefined) {
@@ -149,6 +159,26 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
             }, 3000);
             output = null;
           // }
+          break;
+
+        case 'info':
+          output = this.infoMessage;
+          break;
+        case 'balance':
+          if(this.web3State == Web3LoadingStatus.complete){
+            const balWei = await this.service.getEthBalanceAsync();
+            const crowWei = await this.service.getTokenBalanceAsync();
+            if(balWei && crowWei){
+              const balEth = await this.service.convertWeiToEth(balWei);
+              const balCrow = await this.service.convertWeiToEth(crowWei);
+              output = '\nEther balance:\t\t' + balEth + ' ETH\n' +
+              'CrowCoin balance:\t' + balCrow + ' CROW';
+            }else{
+              output = '\nUnable to retrieve balance';
+            }
+            break;
+          }
+          output = this.web3State;
           break;
         case 'help':
           output = this.helpMessage;

@@ -485,7 +485,7 @@ export class LevelIntroState {
     ctx.textAlign = "center";
     ctx.fillText("Horde " + this.level, game.width / 2, game.height / 2 - 36);
     ctx.font = "24px 'Andale Mono', Consolas, 'Courier New'";
-    ctx.fillText("Ready in " + this.countdownMessage, game.width / 2, game.height / 2);
+    ctx.fillText("Coming in " + this.countdownMessage, game.width / 2, game.height / 2);
     return;
   };
 }

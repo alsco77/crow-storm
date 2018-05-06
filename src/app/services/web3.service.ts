@@ -180,6 +180,10 @@ export class Web3Service implements OnDestroy {
     return Promise.resolve(rawTransaction);
   }
 
+  async convertWeiToEth(wei: string){
+    return Promise.resolve(this.web3js.utils.fromWei(wei, 'ether'));
+  }
+
   async purchaseTokensAsync(userAddress: string, userPrivKey: string, saleContractAddress: string, weiAmountHex: string,
     gasPriceGwei: number, gasLimit: number, successCallback: Function): Promise<TransactionReceipt> {
     try {
