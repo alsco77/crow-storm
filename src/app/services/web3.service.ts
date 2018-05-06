@@ -62,7 +62,7 @@ export class Web3Service implements OnDestroy {
   public account = new BehaviorSubject<string>(null);
   public account$ = this.account.asObservable();
 
-  public txStatus = new Subject<TxInfo>();
+  public txStatus = new BehaviorSubject<TxInfo>(null);
   public txStatus$ = this.txStatus.asObservable();
 
 
@@ -234,6 +234,7 @@ export class Web3Service implements OnDestroy {
       // console.log(`Sending signed tx: ${serializedTxHex.toString('hex')}`);
       // this.firebase.logTokenPurchaseTxSent(userAddress, serializedTxHex.toString('hex'));
 
+      this.txStatus.next(null);
       const receipt = await this.web3js.eth.sendTransaction(rawTransaction)
         .on('transactionHash', (hash) => {
           this.txStatus.next(new TxInfo(TxStatus.hash, hash));

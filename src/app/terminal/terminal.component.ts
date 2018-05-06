@@ -87,8 +87,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
       this.web3State = status;
       if (status == Web3LoadingStatus.complete) {
         if (this.firstLoad) {
-          // this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
-          this.addOutput('', true);
+          this.addOutput(this.welcomeMessage + '`<span style="color:green;">' + status + '</span>`^800\n\n' + this.getHelpMessage, true);
+          // this.addOutput('', true);
           this.firstLoad = false;
         }
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
@@ -205,34 +205,36 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           if (this.web3State == Web3LoadingStatus.complete) {
             if (args.length == 2 && parseInt(args[1]) != NaN) {
               this.addOutput('Please accept the request on MetaMask...')
-              this.service.purchaseTokensAsync(null, args[1], function () { });
               // console.log("terminal receipt: " + JSON.stringify(receipt));
-              
+
               var hash;
+              this.service.purchaseTokensAsync(null, args[1], function () { });
               const txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
-                switch (txInfo.status) {
-                  case TxStatus.hash:
-                    hash = txInfo.data;
-                    this.addOutput('Purchase sent...');
-                    break;
-                  case TxStatus.receipt:
-                    if(hash = txInfo.data){
-                      this.addOutput('Awaiting confirmation...');
+                if (txInfo != null) {
+                  switch (txInfo.status) {
+                    case TxStatus.hash:
+                      hash = txInfo.data;
+                      this.addOutput('Purchase sent^200\nPlease wait...');
                       break;
-                    }
-                  case TxStatus.confirmed:
-                    if(hash == txInfo.data){
-                      this.addOutput('<span style="color:green">Purchase successful</span>', true);
-                      txSubscription.unsubscribe();
-                      break;
-                    }
-                  case TxStatus.error:
-                    
+                    case TxStatus.receipt:
+                      if (hash = txInfo.data) {
+                        this.addOutput('Awaiting confirmation...');
+                        break;
+                      }
+                    case TxStatus.confirmed:
+                      if (hash == txInfo.data) {
+                        this.addOutput('<span style="color:green">Purchase successful</span>', true);
+                        txSubscription.unsubscribe();
+                        break;
+                      }
+                    case TxStatus.error:
+
                       this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
                       txSubscription.unsubscribe();
                       break;
-                  default:
-                    break;
+                    default:
+                      break;
+                  }
                 }
               });
               output = null;
@@ -276,7 +278,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           }
         }
       }));
-    });
+    }, 10);
   }
 
   onInput(event) {
