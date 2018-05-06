@@ -24,9 +24,11 @@ import { ENGINE_METHOD_DIGESTS } from 'constants';
 export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('cmdInput') cmdInput: ElementRef;
+  @ViewChild('terminalBody') terminalBody: ElementRef;
 
   allOutput: Array<Typed> = [];
   commands: Array<Command> = [new Command(null)];
+  currentCommand = -1;
   currentInput = '';
 
   showPrompt = false;
@@ -52,7 +54,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     '`Hooking up to the network...`^800\n'
     + '';
   invalidCommandMessage = 'Command not recognised\n';
-  getHelpMessage = '`Enter "help" for a list of available commands`';
+  getHelpMessage = '`Enter "help" for a list of available commands or "shootcrows" to get into the action`';
   helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^400\n' +
     '`command: "info"\t\t\t(What is going on?)`^400\n' +
     '`command: "balance"\t\t(Check your balance)`^400\n' +
@@ -62,7 +64,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   infoMessage = 'A giant horde of crows is descending on Melbourne...\n' +
     'If we let them get in to the city it will be a disaster!\n' +
     'Use your skills to clear them out and you will be rewarded with Crow Coins^300\n' +
-    'Now enter the command \'shootcrows\' and lets take care of this problem!';
+    'Now enter the command \'shootcrows\' and lets tget to work!';
   shootCrowsHelpMessage = '`command: "shootcrows"`^400\n `Params: [-difficulty] ["easy", "medium", "hard"]`^400\n' +
     '`e.g. shootcrows -difficulty medium...`^400\n' +
     '`e.g. shootcrows`';
@@ -118,6 +120,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   }
 
   async executeCommandAsync() {
+    this.currentCommand = -1;
     if (this.showPrompt) {
       const input = this.currentInput;
       this.showPrompt = false;
@@ -143,20 +146,17 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     let output = this.invalidCommandMessage + this.getHelpMessage;
     if (args.length) {
       switch (args[0].toLowerCase()) {
-        case 'help':
-          output = this.helpMessage;
-          break;
-        case 'unlockaccount':
-          if (args.length === 3 && args[1] === '-key' && this.isHexString(args[2])) {
-            // const account = await this.service.getAccountFromPKeyAsync(args[2]);
-            // if (account != null) {
-            //   output = account.address;
-            // }
-          } else {
-            this.addOutput(this.invalidCommandMessage);
-            output = this.unlockAccHelpMessage;
-          }
-          break;
+        // case 'unlockaccount':
+        //   if (args.length === 3 && args[1] === '-key' && this.isHexString(args[2])) {
+        //     // const account = await this.service.getAccountFromPKeyAsync(args[2]);
+        //     // if (account != null) {
+        //     //   output = account.address;
+        //     // }
+        //   } else {
+        //     this.addOutput(this.invalidCommandMessage);
+        //     output = this.unlockAccHelpMessage;
+        //   }
+        //   break;
         case 'shootcrows':
           // if (args.length === 3 && args[1] === '-difficulty' )) {
           //   // const account = await this.service.getAccountFromPKeyAsync(args[2]);
@@ -207,8 +207,10 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   }
 
   addOutput(output: string = '', isLastOutput: boolean = false) {
-    // while(this.addingOutput == true){}
-    // this.addingOutput = true;
+    var scrollInterval = setInterval(() => {
+      var elem = this.terminalBody.nativeElement;
+      elem.scrollTop = elem.scrollHeight;
+    }, 20);
     const index = this.commands.length;
     this.commands[index] = new Command(null);
     setTimeout(() => {
@@ -221,6 +223,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
         loop: false,
         onComplete: () => {
           // this.addingOutput = false;
+          clearInterval(scrollInterval);
           if (isLastOutput) {
             this.showPrompt = true;
             this.focusInput();
@@ -228,6 +231,32 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
         }
       }));
     });
+  }
+
+  onInput(event){
+    const commands = this.commands.filter(x => x.containsCommand);
+    if(commands.length > 0){
+      if(event.keyCode == 38){ //up
+        if(this.currentCommand == -1){
+          this.currentCommand = commands.length - 1;
+        }else if(this.currentCommand > 0){
+          this.currentCommand -= 1;
+        }
+        if(this.currentCommand >= 0 && commands[this.currentCommand]){
+          this.currentInput = commands[this.currentCommand].command;
+        }
+      }else if (event.keyCode == 40){ //down
+        if(this.currentCommand != -1){
+          this.currentCommand += 1;
+          if(this.currentCommand >= commands.length){
+            this.currentCommand = -1;
+            this.currentInput = '';
+          }else{
+            this.currentInput = commands[this.currentCommand].command;
+          }
+        }
+      }
+    }
   }
 
   gameFinished(score) {
