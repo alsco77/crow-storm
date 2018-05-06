@@ -677,6 +677,8 @@ export class GameComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     //Called once, before the instance is destroyed.
     //Add 'implements OnDestroy' to the class.
+
+    window.removeEventListener("keydown", (e) => {})
     this.stateSubscription.unsubscribe();
   }
 
@@ -718,7 +720,7 @@ export class GameComponent implements AfterViewInit, OnDestroy {
       var keycode = e.keyCode;
       //  Supress further processing of left/right/space (37/29/32)
       if (keycode == 37 || keycode == 39 || keycode == 32) {
-        e.preventDefault();
+        // e.preventDefault();
       }
       this.keyDown(keycode);
     });

@@ -55,12 +55,13 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     + '';
   invalidCommandMessage = 'Command not recognised\n';
   getHelpMessage = '`Enter "help" for a list of available commands or "shootcrows" to get into the action`';
-  helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^400\n' +
-    '`command: "info"\t\t\t(What is going on?)`^400\n' +
-    '`command: "balance"\t\t(Check your balance)`^400\n' +
-    '`command: "purchasecrowcoins [amount]"\t\t(Purchase crow coins)`^400\n' +
-    '`command: "checkconnection"\t\t\t(Check MetaMask connection)`^400\n' +
-    '`command: "help"\t\t\t(Get help)`^400\n\n' +
+  helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^300\n' +
+    '`command: "info"\t\t\t(What is going on?)`^300\n' +
+    '`command: "balance"\t\t(Check your balance)`^300\n' +
+    '`command: "purchasecrowcoins [amount]"\t\t(Purchase crow coins)`^300\n' +
+    '`command: "checkconnection"\t\t\t(Check MetaMask connection)`^300\n' +
+    '`command: "exit"\t\t\t(Close the command console)`^300\n' +
+    '`command: "help"\t\t\t(Get help)`^300\n\n' +
     'Now lets take care of some crows!';
   infoMessage = 'A giant horde of crows is descending on Melbourne...\n' +
     'If we let them get in to the city it will be a disaster!\n' +
@@ -149,24 +150,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     let output = this.invalidCommandMessage + this.getHelpMessage;
     if (args.length) {
       switch (args[0].toLowerCase()) {
-        // case 'unlockaccount':
-        //   if (args.length === 3 && args[1] === '-key' && this.isHexString(args[2])) {
-        //     // const account = await this.service.getAccountFromPKeyAsync(args[2]);
-        //     // if (account != null) {
-        //     //   output = account.address;
-        //     // }
-        //   } else {
-        //     this.addOutput(this.invalidCommandMessage);
-        //     output = this.unlockAccHelpMessage;
-        //   }
-        //   break;
         case 'shootcrows':
-          // if (args.length === 3 && args[1] === '-difficulty' )) {
-          //   // const account = await this.service.getAccountFromPKeyAsync(args[2]);
-          //   // if (account != null) {
-          //   //   output = account.address;
-          //   // }
-          // } else {
           this.addOutput(this.loadingCrowsMessage);
           setTimeout(() => {
             this.shootingCrows = true;
@@ -205,32 +189,36 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           if (this.web3State == Web3LoadingStatus.complete) {
             if (args.length == 2 && parseInt(args[1]) != NaN) {
               this.addOutput('Please accept the request on MetaMask...')
-              // console.log("terminal receipt: " + JSON.stringify(receipt));
 
-              var hash;
+              var count = await this.service.getNonce();
               this.service.purchaseTokensAsync(null, args[1], function () { });
-              const txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
+              var txSubscription: Subscription;
+              txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
                 if (txInfo != null) {
                   switch (txInfo.status) {
                     case TxStatus.hash:
-                      hash = txInfo.data;
-                      this.addOutput('Purchase sent^200\nPlease wait...');
+                      if (txInfo.nonce == count) {
+                        this.addOutput('Purchase sent^200\nPlease wait...');
+                      }
                       break;
                     case TxStatus.receipt:
-                      if (hash = txInfo.data) {
-                        this.addOutput('Awaiting confirmation...');
+                      if (txInfo.nonce == count) {
+                        // this.addOutput('Awaiting confirmation...');
                         break;
                       }
                     case TxStatus.confirmed:
-                      if (hash == txInfo.data) {
+                      if (txInfo.nonce == count) {
                         this.addOutput('<span style="color:green">Purchase successful</span>', true);
                         txSubscription.unsubscribe();
+                        count = 0;
                         break;
                       }
                     case TxStatus.error:
-
-                      this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
-                      txSubscription.unsubscribe();
+                      if (txInfo.nonce == count) {
+                        this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
+                        txSubscription.unsubscribe();
+                        count = 0;
+                      }
                       break;
                     default:
                       break;
@@ -248,6 +236,9 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           break;
         case 'help':
           output = this.helpMessage;
+          break;
+        case 'exit':
+          this.closeTerminal();
           break;
       }
     }
@@ -307,11 +298,38 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  gameFinished(score) {
+  async gameFinished(score) {
     this.shootingCrows = false;
     this.comService.setState(AppState.terminal);
-    this.addOutput('\n<br/>Your sacrifice has been noted!^400\n Would you like to claim your ' + score +
-      ' Crow Coins? [Y]es or [N]o^400\n', true);
+    this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
+      ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
+    setTimeout(async () => {
+      var count = await this.service.getNonce();
+      this.service.claimTokensAsync(score.toString());
+      var txSubscription: Subscription;
+      txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
+        if (txInfo != null) {
+          switch (txInfo.status) {
+            case TxStatus.hash:
+              if (txInfo.nonce == count) {
+                this.addOutput('Depositing Coins into your wallet...', true);
+                count = 0;
+                txSubscription.unsubscribe();
+              }
+              break;
+            case TxStatus.error:
+              if (txInfo.nonce == count) {
+                this.addOutput('Maybe next time you will want the coins', true);
+                count = 0;
+                txSubscription.unsubscribe();
+              }
+              break;
+            default:
+              break;
+          }
+        }
+      })
+    }, 600);
   }
 
   inputBlur() {

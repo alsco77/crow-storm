@@ -1208,11 +1208,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var Web3 = __webpack_require__("./node_modules/web3/src/index.js");
 var Tx = __webpack_require__("./node_modules/ethereumjs-tx/es5/index.js");
 // tslint:disable-next-line
-var CrowdsaleAbi = [{ "constant": true, "inputs": [], "name": "rate", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "cap", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "weiRaised", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "capReached", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "wallet", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [{ "name": "_rate", "type": "uint256" }, { "name": "_cap", "type": "uint256" }, { "name": "_token", "type": "address" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "purchaser", "type": "address" }, { "indexed": true, "name": "beneficiary", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" }, { "indexed": false, "name": "amount", "type": "uint256" }], "name": "TokenPurchase", "type": "event" }];
+var CrowdsaleAbi = [{ "constant": true, "inputs": [], "name": "rate", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "cap", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "weiRaised", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "capReached", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "wallet", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }, { "name": "_amount", "type": "uint256" }], "name": "claimTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "inputs": [{ "name": "_rate", "type": "uint256" }, { "name": "_cap", "type": "uint256" }, { "name": "_token", "type": "address" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "purchaser", "type": "address" }, { "indexed": true, "name": "beneficiary", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" }, { "indexed": false, "name": "amount", "type": "uint256" }], "name": "TokenPurchase", "type": "event" }];
 var TxInfo = /** @class */ (function () {
-    function TxInfo(status, data) {
+    function TxInfo(status, nonce) {
         this.status = status;
-        this.data = data;
+        this.nonce = nonce;
     }
     return TxInfo;
 }());
@@ -1231,12 +1231,12 @@ var Web3Service = /** @class */ (function () {
         this.firebase = firebase;
         this.comService = comService;
         this.crowCoin = {
-            contractAddress: "0xcab46d722ab70590d04b55ea27eb344ff806c0eb",
-            id: "oasisCredit",
-            name: "Oasis Credit",
+            contractAddress: "0xd87469ec5737d8dde6d07001dfb6f2178fcd734b",
+            id: "crowCoin",
+            name: "Crow Coin",
             ratio: 8000,
-            saleContractAddress: "0xd0cd15c52eef857928035e62db3410bbc1aad64b",
-            symbol: "OCR"
+            saleContractAddress: "0xf7e7d4cd6359a7825987d4d3d4d8126f7f3583b0",
+            symbol: "CROW"
         };
         this.web3Status = new __WEBPACK_IMPORTED_MODULE_1_rxjs_BehaviorSubject__["a" /* BehaviorSubject */](null);
         this.web3Status$ = this.web3Status.asObservable();
@@ -1420,75 +1420,133 @@ var Web3Service = /** @class */ (function () {
             });
         });
     };
+    Web3Service.prototype.getNonce = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var count;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.web3js.eth.getTransactionCount(this.account.value)];
+                    case 1:
+                        count = _a.sent();
+                        return [2 /*return*/, count];
+                }
+            });
+        });
+    };
     Web3Service.prototype.purchaseTokensAsync = function (userAddress, amount, successCallback) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var ethAmount, weiAmountHex, rawTransaction, gasLimit, receipt, e_1;
+            var count_1, ethAmount, weiAmountHex, rawTransaction, gasLimit, receipt, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 5, , 6]);
+                        _a.trys.push([0, 6, , 7]);
                         userAddress = this.account.value;
+                        return [4 /*yield*/, this.web3js.eth.getTransactionCount(userAddress)];
+                    case 1:
+                        count_1 = _a.sent();
                         ethAmount = (parseInt(amount) / this.crowCoin.ratio).toString();
                         weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(ethAmount));
-                        return [4 /*yield*/, this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex, 91, 250000)];
-                    case 1:
+                        return [4 /*yield*/, this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex, 121, 250000)];
+                    case 2:
                         rawTransaction = _a.sent();
                         console.log('evaluating cost of tx:' + JSON.stringify(rawTransaction));
                         return [4 /*yield*/, this.estimateGasAsync(rawTransaction)];
-                    case 2:
-                        gasLimit = _a.sent();
-                        return [4 /*yield*/, this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex, 91, gasLimit)];
                     case 3:
+                        gasLimit = _a.sent();
+                        return [4 /*yield*/, this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex, 121, gasLimit)];
+                    case 4:
                         rawTransaction = _a.sent();
                         console.log("Raw tx: \n" + JSON.stringify(rawTransaction, null, '\t'));
                         this.firebase.logTokenPurchaseTxCreated(userAddress, rawTransaction);
-                        // userPrivKey = this.utils.getNakedAddress(userPrivKey);
-                        // const privKey = new Buffer(userPrivKey, 'hex');
-                        // const tx = new Tx(rawTransaction);
-                        // tx = tx.sign();
-                        // const serializedTxHex = tx.serialize().toString('hex');
-                        // console.log(`Sending signed tx: ${serializedTxHex.toString('hex')}`);
-                        // this.firebase.logTokenPurchaseTxSent(userAddress, serializedTxHex.toString('hex'));
                         this.txStatus.next(null);
                         return [4 /*yield*/, this.web3js.eth.sendTransaction(rawTransaction)
                                 .on('transactionHash', function (hash) {
-                                _this.txStatus.next(new TxInfo(TxStatus.hash, hash));
+                                _this.txStatus.next(new TxInfo(TxStatus.hash, count_1));
                             })
                                 .on('receipt', function (receipt) {
-                                _this.txStatus.next(new TxInfo(TxStatus.receipt, receipt.transactionHash));
+                                _this.txStatus.next(new TxInfo(TxStatus.receipt, count_1));
                             })
                                 .on('confirmation', function (confirmationNumber, receipt) {
                                 if (confirmationNumber == 0) {
-                                    _this.txStatus.next(new TxInfo(TxStatus.confirmed, receipt.transactionHash));
+                                    _this.txStatus.next(new TxInfo(TxStatus.confirmed, count_1));
                                     _this.comService.addCoins(parseInt(amount));
                                 }
                             })
                                 .on('error', function () {
-                                _this.txStatus.next(new TxInfo(TxStatus.error, null));
+                                _this.txStatus.next(new TxInfo(TxStatus.error, count_1));
                             })];
-                    case 4:
+                    case 5:
                         receipt = _a.sent();
-                        //     , (error, hash) => {
-                        //     console.log("send transaction:" + error);
-                        //     console.log("send transaction:" + hash);
-                        //     if(hash){
-                        //       this.comService.addCoins(parseInt(amount));
-                        //     }
-                        // });  
-                        // const receipt = await this.web3js.eth.sendSignedTransaction('0x' + serializedTxHex.toString('hex'))
-                        //   .on('transactionHash', hash => {
-                        //     successCallback(hash);
-                        //   });F
-                        // console.log(`Receipt: \n${JSON.stringify(receipt, null, '\t')}`);
-                        // this.firebase.logTokenPurchaseSuccess(userAddress, JSON.stringify(receipt));
                         console.log("sending transaction receipt: " + JSON.stringify(receipt));
                         return [2 /*return*/, Promise.resolve(receipt)];
-                    case 5:
+                    case 6:
                         e_1 = _a.sent();
                         this.firebase.logTokenPurchaseError(userAddress, JSON.stringify(e_1));
                         return [2 /*return*/, Promise.reject(null)];
-                    case 6: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Web3Service.prototype.claimTokensAsync = function (amount) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var userAddress, wei0hex, weiAmountHex, saleContractAddress, contract, count_2, chainId, rawTransaction, receipt, e_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 4, , 5]);
+                        userAddress = this.utils.prefixHex(this.account.value);
+                        wei0hex = '0x0';
+                        weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(amount));
+                        saleContractAddress = this.utils.prefixHex(this.crowCoin.saleContractAddress);
+                        contract = new this.web3js.eth.Contract(CrowdsaleAbi, saleContractAddress, {
+                            from: userAddress
+                        });
+                        return [4 /*yield*/, this.web3js.eth.getTransactionCount(userAddress)];
+                    case 1:
+                        count_2 = _a.sent();
+                        return [4 /*yield*/, this.web3js.eth.net.getId()];
+                    case 2:
+                        chainId = _a.sent();
+                        rawTransaction = {
+                            'from': userAddress,
+                            'nonce': '0x' + count_2.toString(16),
+                            'gasPrice': this.web3js.utils.toHex(131 * 1e9),
+                            'gasLimit': this.web3js.utils.toHex(100000),
+                            'to': saleContractAddress,
+                            'value': wei0hex,
+                            'data': contract.methods.claimTokens(userAddress, weiAmountHex).encodeABI(),
+                            'chainId': chainId
+                        };
+                        console.log("Raw tx: \n" + JSON.stringify(rawTransaction, null, '\t'));
+                        this.txStatus.next(null);
+                        return [4 /*yield*/, this.web3js.eth.sendTransaction(rawTransaction)
+                                .on('transactionHash', function (hash) {
+                                _this.txStatus.next(new TxInfo(TxStatus.hash, count_2));
+                            })
+                                .on('receipt', function (receipt) {
+                                _this.txStatus.next(new TxInfo(TxStatus.receipt, count_2));
+                            })
+                                .on('confirmation', function (confirmationNumber, receipt) {
+                                if (confirmationNumber == 0) {
+                                    _this.txStatus.next(new TxInfo(TxStatus.confirmed, count_2));
+                                    _this.comService.addCoins(parseInt(amount));
+                                }
+                            })
+                                .on('error', function () {
+                                _this.txStatus.next(new TxInfo(TxStatus.error, count_2));
+                            })];
+                    case 3:
+                        receipt = _a.sent();
+                        console.log("sending transaction receipt: " + JSON.stringify(receipt));
+                        return [2 /*return*/, Promise.resolve(receipt)];
+                    case 4:
+                        e_2 = _a.sent();
+                        this.firebase.logTokenPurchaseError(this.account.value, JSON.stringify(e_2));
+                        return [2 /*return*/, Promise.reject(null)];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -2104,6 +2162,7 @@ var GameComponent = /** @class */ (function () {
     GameComponent.prototype.ngOnDestroy = function () {
         //Called once, before the instance is destroyed.
         //Add 'implements OnDestroy' to the class.
+        window.removeEventListener("keydown", function (e) { });
         this.stateSubscription.unsubscribe();
     };
     GameComponent.prototype.startGame = function () {
@@ -2137,7 +2196,7 @@ var GameComponent = /** @class */ (function () {
             var keycode = e.keyCode;
             //  Supress further processing of left/right/space (37/29/32)
             if (keycode == 37 || keycode == 39 || keycode == 32) {
-                e.preventDefault();
+                // e.preventDefault();
             }
             _this.keyDown(keycode);
         });
@@ -2413,12 +2472,13 @@ var TerminalComponent = /** @class */ (function () {
             + '';
         this.invalidCommandMessage = 'Command not recognised\n';
         this.getHelpMessage = '`Enter "help" for a list of available commands or "shootcrows" to get into the action`';
-        this.helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^400\n' +
-            '`command: "info"\t\t\t(What is going on?)`^400\n' +
-            '`command: "balance"\t\t(Check your balance)`^400\n' +
-            '`command: "purchasecrowcoins [amount]"\t\t(Purchase crow coins)`^400\n' +
-            '`command: "checkconnection"\t\t\t(Check MetaMask connection)`^400\n' +
-            '`command: "help"\t\t\t(Get help)`^400\n\n' +
+        this.helpMessage = '\n\n `command: "shootcrows"\t(Take care of the damn crows)`^300\n' +
+            '`command: "info"\t\t\t(What is going on?)`^300\n' +
+            '`command: "balance"\t\t(Check your balance)`^300\n' +
+            '`command: "purchasecrowcoins [amount]"\t\t(Purchase crow coins)`^300\n' +
+            '`command: "checkconnection"\t\t\t(Check MetaMask connection)`^300\n' +
+            '`command: "exit"\t\t\t(Close the command console)`^300\n' +
+            '`command: "help"\t\t\t(Get help)`^300\n\n' +
             'Now lets take care of some crows!';
         this.infoMessage = 'A giant horde of crows is descending on Melbourne...\n' +
             'If we let them get in to the city it will be a disaster!\n' +
@@ -2523,14 +2583,14 @@ var TerminalComponent = /** @class */ (function () {
     TerminalComponent.prototype.handleCommandAsync = function (arg) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
-            var args, output, _a, balWei, crowWei, balEth, balCrow, hash, txSubscription_1;
+            var args, output, _a, balWei, crowWei, balEth, balCrow, count, txSubscription;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         arg = arg.trim();
                         args = arg.split(' ');
                         output = this.invalidCommandMessage + this.getHelpMessage;
-                        if (!args.length) return [3 /*break*/, 14];
+                        if (!args.length) return [3 /*break*/, 18];
                         _a = args[0].toLowerCase();
                         switch (_a) {
                             case 'shootcrows': return [3 /*break*/, 1];
@@ -2538,16 +2598,11 @@ var TerminalComponent = /** @class */ (function () {
                             case 'checkconnection': return [3 /*break*/, 3];
                             case 'balance': return [3 /*break*/, 4];
                             case 'purchasecrowcoins': return [3 /*break*/, 12];
-                            case 'help': return [3 /*break*/, 13];
+                            case 'help': return [3 /*break*/, 16];
+                            case 'exit': return [3 /*break*/, 17];
                         }
-                        return [3 /*break*/, 14];
+                        return [3 /*break*/, 18];
                     case 1:
-                        // if (args.length === 3 && args[1] === '-difficulty' )) {
-                        //   // const account = await this.service.getAccountFromPKeyAsync(args[2]);
-                        //   // if (account != null) {
-                        //   //   output = account.address;
-                        //   // }
-                        // } else {
                         this.addOutput(this.loadingCrowsMessage);
                         setTimeout(function () {
                             _this.shootingCrows = true;
@@ -2555,16 +2610,16 @@ var TerminalComponent = /** @class */ (function () {
                         }, 3000);
                         output = null;
                         // }
-                        return [3 /*break*/, 14];
+                        return [3 /*break*/, 18];
                     case 2:
                         output = this.infoMessage;
-                        return [3 /*break*/, 14];
+                        return [3 /*break*/, 18];
                     case 3:
                         output = this.web3State + '^400\n';
                         if (this.account) {
                             output += 'Account: ' + this.account;
                         }
-                        return [3 /*break*/, 14];
+                        return [3 /*break*/, 18];
                     case 4:
                         if (!(this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete)) return [3 /*break*/, 11];
                         return [4 /*yield*/, this.service.getEthBalanceAsync()];
@@ -2586,56 +2641,65 @@ var TerminalComponent = /** @class */ (function () {
                     case 9:
                         output = '\nUnable to retrieve balance';
                         _b.label = 10;
-                    case 10: return [3 /*break*/, 14];
+                    case 10: return [3 /*break*/, 18];
                     case 11:
                         output = this.web3State;
-                        return [3 /*break*/, 14];
+                        return [3 /*break*/, 18];
                     case 12:
-                        if (this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete) {
-                            if (args.length == 2 && parseInt(args[1]) != NaN) {
-                                this.addOutput('Please accept the request on MetaMask...');
-                                this.service.purchaseTokensAsync(null, args[1], function () { });
-                                txSubscription_1 = this.service.txStatus$.subscribe(function (txInfo) {
-                                    if (txInfo != null) {
-                                        switch (txInfo.status) {
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].hash:
-                                                hash = txInfo.data;
-                                                _this.addOutput('Purchase sent^200\nPlease wait...');
-                                                break;
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].receipt:
-                                                if (hash = txInfo.data) {
-                                                    _this.addOutput('Awaiting confirmation...');
-                                                    break;
-                                                }
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].confirmed:
-                                                if (hash == txInfo.data) {
-                                                    _this.addOutput('<span style="color:green">Purchase successful</span>', true);
-                                                    txSubscription_1.unsubscribe();
-                                                    break;
-                                                }
-                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].error:
-                                                _this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
-                                                txSubscription_1.unsubscribe();
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }
-                                });
-                                output = null;
-                                return [3 /*break*/, 14];
-                            }
-                            else {
-                                output = this.purchaseCoinsHelpMessage;
-                                return [3 /*break*/, 14];
-                            }
-                        }
-                        output = this.web3State;
-                        return [3 /*break*/, 14];
+                        if (!(this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete)) return [3 /*break*/, 15];
+                        if (!(args.length == 2 && parseInt(args[1]) != NaN)) return [3 /*break*/, 14];
+                        this.addOutput('Please accept the request on MetaMask...');
+                        return [4 /*yield*/, this.service.getNonce()];
                     case 13:
+                        count = _b.sent();
+                        this.service.purchaseTokensAsync(null, args[1], function () { });
+                        txSubscription = this.service.txStatus$.subscribe(function (txInfo) {
+                            if (txInfo != null) {
+                                switch (txInfo.status) {
+                                    case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].hash:
+                                        if (txInfo.nonce == count) {
+                                            _this.addOutput('Purchase sent^200\nPlease wait...');
+                                        }
+                                        break;
+                                    case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].receipt:
+                                        if (txInfo.nonce == count) {
+                                            // this.addOutput('Awaiting confirmation...');
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].confirmed:
+                                        if (txInfo.nonce == count) {
+                                            _this.addOutput('<span style="color:green">Purchase successful</span>', true);
+                                            txSubscription.unsubscribe();
+                                            count = 0;
+                                            break;
+                                        }
+                                    case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].error:
+                                        if (txInfo.nonce == count) {
+                                            _this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
+                                            txSubscription.unsubscribe();
+                                            count = 0;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        });
+                        output = null;
+                        return [3 /*break*/, 18];
+                    case 14:
+                        output = this.purchaseCoinsHelpMessage;
+                        return [3 /*break*/, 18];
+                    case 15:
+                        output = this.web3State;
+                        return [3 /*break*/, 18];
+                    case 16:
                         output = this.helpMessage;
-                        return [3 /*break*/, 14];
-                    case 14: return [2 /*return*/, Promise.resolve(output)];
+                        return [3 /*break*/, 18];
+                    case 17:
+                        this.closeTerminal();
+                        return [3 /*break*/, 18];
+                    case 18: return [2 /*return*/, Promise.resolve(output)];
                 }
             });
         });
@@ -2698,10 +2762,51 @@ var TerminalComponent = /** @class */ (function () {
         }
     };
     TerminalComponent.prototype.gameFinished = function (score) {
-        this.shootingCrows = false;
-        this.comService.setState(__WEBPACK_IMPORTED_MODULE_8__classes_app_state_enum__["a" /* AppState */].terminal);
-        this.addOutput('\n<br/>Your sacrifice has been noted!^400\n Would you like to claim your ' + score +
-            ' Crow Coins? [Y]es or [N]o^400\n', true);
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                this.shootingCrows = false;
+                this.comService.setState(__WEBPACK_IMPORTED_MODULE_8__classes_app_state_enum__["a" /* AppState */].terminal);
+                this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
+                    ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
+                setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+                    var _this = this;
+                    var count, txSubscription;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, this.service.getNonce()];
+                            case 1:
+                                count = _a.sent();
+                                this.service.claimTokensAsync(score.toString());
+                                txSubscription = this.service.txStatus$.subscribe(function (txInfo) {
+                                    if (txInfo != null) {
+                                        switch (txInfo.status) {
+                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].hash:
+                                                if (txInfo.nonce == count) {
+                                                    _this.addOutput('Depositing Coins into your wallet...', true);
+                                                    count = 0;
+                                                    txSubscription.unsubscribe();
+                                                }
+                                                break;
+                                            case __WEBPACK_IMPORTED_MODULE_1__services_web3_service__["a" /* TxStatus */].error:
+                                                if (txInfo.nonce == count) {
+                                                    _this.addOutput('Maybe next time you will want the coins', true);
+                                                    count = 0;
+                                                    txSubscription.unsubscribe();
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                });
+                                return [2 /*return*/];
+                        }
+                    });
+                }); }, 600);
+                return [2 /*return*/];
+            });
+        });
     };
     TerminalComponent.prototype.inputBlur = function () {
         clearInterval(this.interval);

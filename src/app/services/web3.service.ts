@@ -17,20 +17,20 @@ const Tx = require('ethereumjs-tx');
 declare var web3;
 
 // tslint:disable-next-line
-const CrowdsaleAbi = [{ "constant": true, "inputs": [], "name": "rate", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "cap", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "weiRaised", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "capReached", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "wallet", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [{ "name": "_rate", "type": "uint256" }, { "name": "_cap", "type": "uint256" }, { "name": "_token", "type": "address" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "purchaser", "type": "address" }, { "indexed": true, "name": "beneficiary", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" }, { "indexed": false, "name": "amount", "type": "uint256" }], "name": "TokenPurchase", "type": "event" }];
+const CrowdsaleAbi = [{ "constant": true, "inputs": [], "name": "rate", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "cap", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "weiRaised", "outputs": [{ "name": "", "type": "uint256" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "capReached", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "wallet", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }], "name": "buyTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": true, "inputs": [], "name": "token", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "_beneficiary", "type": "address" }, { "name": "_amount", "type": "uint256" }], "name": "claimTokens", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "inputs": [{ "name": "_rate", "type": "uint256" }, { "name": "_cap", "type": "uint256" }, { "name": "_token", "type": "address" }], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [{ "indexed": true, "name": "purchaser", "type": "address" }, { "indexed": true, "name": "beneficiary", "type": "address" }, { "indexed": false, "name": "value", "type": "uint256" }, { "indexed": false, "name": "amount", "type": "uint256" }], "name": "TokenPurchase", "type": "event" }]
 
 export class TxInfo {
 
   status: TxStatus;
-  data: string;
+  nonce: string;
 
-  constructor(status: TxStatus, data: string){
+  constructor(status: TxStatus, nonce: string) {
     this.status = status;
-    this.data = data;
+    this.nonce = nonce;
   }
 }
 
-export enum TxStatus{
+export enum TxStatus {
   hash = "hash",
   receipt = "receipt",
   confirmed = "confirmed",
@@ -48,12 +48,12 @@ export class Web3Service implements OnDestroy {
   public accountInterval: any;
 
   public crowCoin: Coin = {
-    contractAddress: "0xcab46d722ab70590d04b55ea27eb344ff806c0eb",
-    id: "oasisCredit",
-    name: "Oasis Credit",
+    contractAddress: "0xd87469ec5737d8dde6d07001dfb6f2178fcd734b",
+    id: "crowCoin",
+    name: "Crow Coin",
     ratio: 8000,
-    saleContractAddress: "0xd0cd15c52eef857928035e62db3410bbc1aad64b",
-    symbol: "OCR"
+    saleContractAddress: "0xf7e7d4cd6359a7825987d4d3d4d8126f7f3583b0",
+    symbol: "CROW"
   }
 
   public web3Status = new BehaviorSubject<Web3LoadingStatus>(null);
@@ -209,68 +209,100 @@ export class Web3Service implements OnDestroy {
     return Promise.resolve(this.web3js.utils.fromWei(wei, 'ether'));
   }
 
+  async getNonce() {
+    const count = await this.web3js.eth.getTransactionCount(this.account.value);
+    return count;
+  }
+
   async purchaseTokensAsync(userAddress: string, amount: string, successCallback: Function): Promise<TransactionReceipt> {
     try {
       userAddress = this.account.value;
+      const count = await this.web3js.eth.getTransactionCount(userAddress);
       const ethAmount = (parseInt(amount) / this.crowCoin.ratio).toString();
       const weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(ethAmount))
       var rawTransaction = await this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex,
-        91, 250000);
+        121, 250000);
       console.log('evaluating cost of tx:' + JSON.stringify(rawTransaction));
       const gasLimit = await this.estimateGasAsync(rawTransaction);
       rawTransaction = await this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex,
-        91, gasLimit);
+        121, gasLimit);
 
       console.log(`Raw tx: \n${JSON.stringify(rawTransaction, null, '\t')}`);
       this.firebase.logTokenPurchaseTxCreated(userAddress, rawTransaction);
 
-      // userPrivKey = this.utils.getNakedAddress(userPrivKey);
-      // const privKey = new Buffer(userPrivKey, 'hex');
-
-      // const tx = new Tx(rawTransaction);
-      // tx = tx.sign();
-      // const serializedTxHex = tx.serialize().toString('hex');
-
-      // console.log(`Sending signed tx: ${serializedTxHex.toString('hex')}`);
-      // this.firebase.logTokenPurchaseTxSent(userAddress, serializedTxHex.toString('hex'));
-
       this.txStatus.next(null);
       const receipt = await this.web3js.eth.sendTransaction(rawTransaction)
         .on('transactionHash', (hash) => {
-          this.txStatus.next(new TxInfo(TxStatus.hash, hash));
+          this.txStatus.next(new TxInfo(TxStatus.hash, count));
         })
         .on('receipt', (receipt) => {
-          this.txStatus.next(new TxInfo(TxStatus.receipt, receipt.transactionHash));
+          this.txStatus.next(new TxInfo(TxStatus.receipt, count));
         })
         .on('confirmation', (confirmationNumber, receipt) => {
-          if(confirmationNumber == 0){
-            this.txStatus.next(new TxInfo(TxStatus.confirmed, receipt.transactionHash));
+          if (confirmationNumber == 0) {
+            this.txStatus.next(new TxInfo(TxStatus.confirmed, count));
             this.comService.addCoins(parseInt(amount));
           }
         })
         .on('error', () => {
-          this.txStatus.next(new TxInfo(TxStatus.error, null));
+          this.txStatus.next(new TxInfo(TxStatus.error, count));
         });
-
-
-      //     , (error, hash) => {
-      //     console.log("send transaction:" + error);
-      //     console.log("send transaction:" + hash);
-      //     if(hash){
-      //       this.comService.addCoins(parseInt(amount));
-      //     }
-      // });  
-
-      // const receipt = await this.web3js.eth.sendSignedTransaction('0x' + serializedTxHex.toString('hex'))
-      //   .on('transactionHash', hash => {
-      //     successCallback(hash);
-      //   });F
-      // console.log(`Receipt: \n${JSON.stringify(receipt, null, '\t')}`);
-      // this.firebase.logTokenPurchaseSuccess(userAddress, JSON.stringify(receipt));
       console.log("sending transaction receipt: " + JSON.stringify(receipt));
       return Promise.resolve(receipt);
     } catch (e) {
       this.firebase.logTokenPurchaseError(userAddress, JSON.stringify(e));
+      return Promise.reject(null);
+    }
+  }
+  async claimTokensAsync(amount: string): Promise<TransactionReceipt> {
+    try {
+      const userAddress = this.utils.prefixHex(this.account.value);
+      const wei0hex = '0x0';
+      const weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(amount));
+      const saleContractAddress = this.utils.prefixHex(this.crowCoin.saleContractAddress);
+
+      const contract = new this.web3js.eth.Contract(CrowdsaleAbi, saleContractAddress, {
+        from: userAddress
+      });
+
+      const count = await this.web3js.eth.getTransactionCount(userAddress);
+      const chainId = await this.web3js.eth.net.getId();
+
+
+      const rawTransaction = {
+        'from': userAddress,
+        'nonce': '0x' + count.toString(16),
+        'gasPrice': this.web3js.utils.toHex(131 * 1e9),
+        'gasLimit': this.web3js.utils.toHex(100000),
+        'to': saleContractAddress,
+        'value': wei0hex,
+        'data': contract.methods.claimTokens(userAddress, weiAmountHex).encodeABI(),
+        'chainId': chainId
+      };
+
+      console.log(`Raw tx: \n${JSON.stringify(rawTransaction, null, '\t')}`);
+
+      this.txStatus.next(null);
+      const receipt = await this.web3js.eth.sendTransaction(rawTransaction)
+        .on('transactionHash', (hash) => {
+          this.txStatus.next(new TxInfo(TxStatus.hash, count));
+        })
+        .on('receipt', (receipt) => {
+          this.txStatus.next(new TxInfo(TxStatus.receipt, count));
+        })
+        .on('confirmation', (confirmationNumber, receipt) => {
+          if (confirmationNumber == 0) {
+            this.txStatus.next(new TxInfo(TxStatus.confirmed, count));
+            this.comService.addCoins(parseInt(amount));
+          }
+        })
+        .on('error', () => {
+          this.txStatus.next(new TxInfo(TxStatus.error, count));
+        });
+      console.log("sending transaction receipt: " + JSON.stringify(receipt));
+      return Promise.resolve(receipt);
+    } catch (e) {
+      this.firebase.logTokenPurchaseError(this.account.value, JSON.stringify(e));
       return Promise.reject(null);
     }
   }
