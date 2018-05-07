@@ -331,7 +331,7 @@ export class PlayState {
 
     // Draw bombs
     var eggImg = new Image();
-    eggImg.src = "assets/egg.png";
+    eggImg.src = "assets/egg-min.png";
     for (var i = 0; i < this.bombs.length; i++) {
       var bomb = this.bombs[i];
       ctx.drawImage(eggImg, bomb.x - 2, bomb.y - 2, 8, 8);

@@ -28,7 +28,7 @@ export class BackdropComponent implements OnInit, OnDestroy {
       stateTransitionSpeed: 2000,
       isPausedWhenNotInView: true,
       image: {
-        source: 'assets/bg-forest.jpg',
+        source: 'assets/bg-forest-min.jpg',
         blendingMode: 'multiply',
         position: ['left', 'bottom'],
         stretchMode: ['stretch', 'stretch']
