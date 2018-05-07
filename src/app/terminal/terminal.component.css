@@ -59,6 +59,10 @@
   overflow-y: scroll;
 }
 
+::-webkit-scrollbar { 
+  display: none; 
+}
+
 .shell-body .commandline {
   word-wrap: break-word;
   position: relative;

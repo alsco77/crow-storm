@@ -27,12 +27,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (localStorage.getItem('hasOpened') === 'true') {
-      setTimeout(() => {
-        this.showButton = true;
-      }, 1000);
-    }
-    this.initTitle();
+    
     this.terminalSubscription = this.comService.appState$.subscribe((state: AppState) => {
       if (state == AppState.terminal || state == AppState.game) {
         this.terminalOpen = true;
@@ -43,7 +38,14 @@ export class AppComponent implements OnInit, OnDestroy {
           this.terminalOpen = false;
         }
       }
-    })
+    });
+    console.log("AppComponent: Initiatlising title");
+    this.initTitle();
+    if (localStorage.getItem('hasOpened') === 'true') {
+      setTimeout(() => {
+        this.showButton = true;
+      }, 1000);
+    }
   }
 
   ngOnDestroy() {

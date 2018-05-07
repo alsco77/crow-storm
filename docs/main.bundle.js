@@ -63,12 +63,6 @@ var AppComponent = /** @class */ (function () {
     }
     AppComponent.prototype.ngOnInit = function () {
         var _this = this;
-        if (localStorage.getItem('hasOpened') === 'true') {
-            setTimeout(function () {
-                _this.showButton = true;
-            }, 1000);
-        }
-        this.initTitle();
         this.terminalSubscription = this.comService.appState$.subscribe(function (state) {
             if (state == __WEBPACK_IMPORTED_MODULE_3__classes_app_state_enum__["a" /* AppState */].terminal || state == __WEBPACK_IMPORTED_MODULE_3__classes_app_state_enum__["a" /* AppState */].game) {
                 _this.terminalOpen = true;
@@ -81,6 +75,13 @@ var AppComponent = /** @class */ (function () {
                 }
             }
         });
+        console.log("AppComponent: Initiatlising title");
+        this.initTitle();
+        if (localStorage.getItem('hasOpened') === 'true') {
+            setTimeout(function () {
+                _this.showButton = true;
+            }, 1000);
+        }
     };
     AppComponent.prototype.ngOnDestroy = function () {
         this.terminalSubscription.unsubscribe();
@@ -271,7 +272,7 @@ var BackdropComponent = /** @class */ (function () {
             states: {
                 'default-state': {
                     gradients: [
-                        ['#42f4f4', '#274D25'],
+                        ['#28527a', '#246054'],
                         // ['#80d3fe', '#7ea0c4']  // blue grey
                         ['#0963A2', '#053F6B'] // blue light blue
                     ],
@@ -369,11 +370,11 @@ var BirdsComponent = /** @class */ (function () {
         var _this = this;
         this.comService = comService;
         this.terminalSubscription = this.comService.appState$.subscribe(function (state) {
-            if (state == __WEBPACK_IMPORTED_MODULE_4__classes_app_state_enum__["a" /* AppState */].terminal || state == __WEBPACK_IMPORTED_MODULE_4__classes_app_state_enum__["a" /* AppState */].game) {
+            if (state == __WEBPACK_IMPORTED_MODULE_4__classes_app_state_enum__["a" /* AppState */].terminal) {
                 clearInterval(_this.mouseInterval);
                 _this.mouseInterval = setInterval(function () {
                     document.dispatchEvent(new MouseEvent('simulatemousemove'));
-                }, 10);
+                }, 15);
             }
             else {
                 clearInterval(_this.mouseInterval);
@@ -2376,14 +2377,14 @@ var GameComponent = /** @class */ (function () {
 /***/ "./src/app/terminal/terminal.component.css":
 /***/ (function(module, exports) {
 
-module.exports = ".shell-wrap {\n  width: 700px;\n  margin: 0 auto 0 auto;\n  -webkit-box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);\n          box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);\n  border-radius: 3px;\n}\n\n.shell-top-bar {\n  font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;\n  text-align: center;\n  color: #525252;\n  cursor: pointer;\n  padding: 5px 0;\n  margin: 0;\n  height: 1.1em;\n  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);\n  font-size: 0.85em;\n  border: 1px solid #CCCCCC;\n  border-bottom: none;\n  -webkit-border-top-left-radius: 3px;\n  -webkit-border-top-right-radius: 3px;\n  -moz-border-radius-topleft: 3px;\n  -moz-border-radius-topright: 3px;\n  border-top-left-radius: 3px;\n  border-top-right-radius: 3px;\n  background: #f7f7f7;\n  /* Old browsers */\n  /* FF3.6+ */\n  /* Chrome10+,Safari5.1+ */\n  /* Opera 11.10+ */\n  /* IE10+ */\n  background: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#B8B8B8));\n  background: linear-gradient(to bottom, #f7f7f7 0%, #B8B8B8 100%);\n  /* W3C */\n  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#B8B8B8', GradientType=0);\n  /* IE6-9 */\n}\n\n.shell-body {\n  margin: 0;\n  padding: 5px;\n  height: 500px;\n  list-style: none;\n  background: rgba(0, 0, 0, 0.8);\n  color: rgb(219, 219, 219);\n  font: 0.8em 'Andale Mono', Consolas, 'Courier New';\n  line-height: 1.6em;\n  -webkit-border-bottom-right-radius: 3px;\n  -webkit-border-bottom-left-radius: 3px;\n  -moz-border-radius-bottomright: 3px;\n  -moz-border-radius-bottomleft: 3px;\n  border-bottom-right-radius: 3px;\n  border-bottom-left-radius: 3px;\n  overflow-y: scroll;\n}\n\n.shell-body .commandline {\n  word-wrap: break-word;\n  position: relative;\n  padding: 0 0 0 15px;\n}\n\n.buttons {\n  padding-left: 8px;\n  padding-top: 0px;\n  float: left;\n  line-height: 0px;\n}\n\n.close {\n  background: #ff5c5c;\n  font-size: 12px;\n  text-shadow: none;\n  width: 11px;\n  height: 11px;\n  border: 1px solid #e33e41;\n  border-radius: 50%;\n  display: inline-block;\n  font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;\n}\n\n.close:hover {\n  cursor: pointer;\n}\n\n.close .closebutton {\n  color: #820005;\n  visibility: hidden;\n  opacity: 0;\n  -webkit-transition: visibility 0s, opacity 0.2s linear;\n  transition: visibility 0s, opacity 0.2s linear;\n}\n\n.close span {\n  line-height: 9px;\n  vertical-align: 50%;\n}\n\n.shell-top-bar:hover .close .closebutton {\n  visibility: visible;\n  opacity: 1;\n}\n\n.shell-body span {\n  white-space: pre-line;\n  word-wrap: break-word;\n}\n\n.command-input {\n  background: transparent;\n  border: none;\n  white-space: unset !important;\n}\n\n.output-container {\n  white-space: normal;\n}\n\n.cmdInput {\n  width: 0px;\n  height: 0px;\n  margin: 0;\n  padding: 0;\n  border: none;\n}\n\n.terminal-prompt {\n  white-space: unset !important;\n}\n\n.terminal-prompt-text {\n  color: orange;\n}\n\n.terminal-prompt-command {\n  white-space: unset !important;\n}\n\n"
+module.exports = ".shell-wrap {\n  width: 700px;\n  margin: 0 auto 0 auto;\n  -webkit-box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);\n          box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);\n  border-radius: 3px;\n}\n\n.shell-top-bar {\n  font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;\n  text-align: center;\n  color: #525252;\n  cursor: pointer;\n  padding: 5px 0;\n  margin: 0;\n  height: 1.1em;\n  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);\n  font-size: 0.85em;\n  border: 1px solid #CCCCCC;\n  border-bottom: none;\n  -webkit-border-top-left-radius: 3px;\n  -webkit-border-top-right-radius: 3px;\n  -moz-border-radius-topleft: 3px;\n  -moz-border-radius-topright: 3px;\n  border-top-left-radius: 3px;\n  border-top-right-radius: 3px;\n  background: #f7f7f7;\n  /* Old browsers */\n  /* FF3.6+ */\n  /* Chrome10+,Safari5.1+ */\n  /* Opera 11.10+ */\n  /* IE10+ */\n  background: -webkit-gradient(linear, left top, left bottom, from(#f7f7f7), to(#B8B8B8));\n  background: linear-gradient(to bottom, #f7f7f7 0%, #B8B8B8 100%);\n  /* W3C */\n  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#B8B8B8', GradientType=0);\n  /* IE6-9 */\n}\n\n.shell-body {\n  margin: 0;\n  padding: 5px;\n  height: 500px;\n  list-style: none;\n  background: rgba(0, 0, 0, 0.8);\n  color: rgb(219, 219, 219);\n  font: 0.8em 'Andale Mono', Consolas, 'Courier New';\n  line-height: 1.6em;\n  -webkit-border-bottom-right-radius: 3px;\n  -webkit-border-bottom-left-radius: 3px;\n  -moz-border-radius-bottomright: 3px;\n  -moz-border-radius-bottomleft: 3px;\n  border-bottom-right-radius: 3px;\n  border-bottom-left-radius: 3px;\n  overflow-y: scroll;\n}\n\n::-webkit-scrollbar { \n  display: none; \n}\n\n.shell-body .commandline {\n  word-wrap: break-word;\n  position: relative;\n  padding: 0 0 0 15px;\n}\n\n.buttons {\n  padding-left: 8px;\n  padding-top: 0px;\n  float: left;\n  line-height: 0px;\n}\n\n.close {\n  background: #ff5c5c;\n  font-size: 12px;\n  text-shadow: none;\n  width: 11px;\n  height: 11px;\n  border: 1px solid #e33e41;\n  border-radius: 50%;\n  display: inline-block;\n  font-family: HelveticaNeue, 'Helvetica Neue', 'Lucida Grande', Arial, sans-serif;\n}\n\n.close:hover {\n  cursor: pointer;\n}\n\n.close .closebutton {\n  color: #820005;\n  visibility: hidden;\n  opacity: 0;\n  -webkit-transition: visibility 0s, opacity 0.2s linear;\n  transition: visibility 0s, opacity 0.2s linear;\n}\n\n.close span {\n  line-height: 9px;\n  vertical-align: 50%;\n}\n\n.shell-top-bar:hover .close .closebutton {\n  visibility: visible;\n  opacity: 1;\n}\n\n.shell-body span {\n  white-space: pre-line;\n  word-wrap: break-word;\n}\n\n.command-input {\n  background: transparent;\n  border: none;\n  white-space: unset !important;\n}\n\n.output-container {\n  white-space: normal;\n}\n\n.cmdInput {\n  width: 0px;\n  height: 0px;\n  margin: 0;\n  padding: 0;\n  border: none;\n}\n\n.terminal-prompt {\n  white-space: unset !important;\n}\n\n.terminal-prompt-text {\n  color: orange;\n}\n\n.terminal-prompt-command {\n  white-space: unset !important;\n}\n\n"
 
 /***/ }),
 
 /***/ "./src/app/terminal/terminal.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div id=\"terminal\" class=\"shell-wrap\">\n  <div  class=\"shell-top-bar\">\n    <div class=\"buttons\">\n      <div class=\"close\" (click)=\"closeTerminal()\">\n        <div class=\"closebutton\">\n          <span>\n            <strong>x</strong>\n          </span>\n        </div>\n      </div>\n    </div>\n    Crow Command Centre Control\n  </div>\n  <div class=\"shell-body\" #terminalBody (click)=\"focusInput()\" [hidden]=\"shootingCrows\">\n    <div *ngFor=\"let cmd of commands; let i = index\" class=\"output-container\">\n      <span [hidden]=\"!cmd.containsCommand\" class=\"terminal-prompt-command\">\n        <span class=\"terminal-prompt-text\">{{prompt}}</span>\n        {{cmd.command}}\n      </span>\n      <span [id]=\"'output-' + i\"></span>\n    </div>\n    <span class=\"terminal-prompt terminal-prompt-text\" *ngIf='showPrompt'>\n      {{prompt}}\n    </span>\n    <span class=\"command-input\" *ngIf='showPrompt'>\n      {{currentInput}}{{cursor}}\n    </span>\n    <input type=\"text\" class=\"cmdInput\" #cmdInput [(ngModel)]=\"currentInput\" (blur)=\"inputBlur()\" \n    (focus)=\"focusInput()\" (keyup.enter)=\"executeCommandAsync()\" (keyup)=\"onInput($event)\"/>\n  </div> \n  <app-game *ngIf=\"shootingCrows\" (finalScore)=\"gameFinished($event)\"></app-game>\n  <!-- <app-game  (finalScore)=\"gameFinished($event)\"></app-game> -->\n</div>\n\n\n"
+module.exports = "<div id=\"terminal\" class=\"shell-wrap\">\n  <div  class=\"shell-top-bar\">\n    <div class=\"buttons\">\n      <div class=\"close\" (click)=\"closeTerminal()\">\n        <div class=\"closebutton\">\n          <span>\n            <strong>x</strong>\n          </span>\n        </div>\n      </div>\n    </div>\n    Crow Command Centre Control\n  </div>\n  <div class=\"shell-body\" #terminalBody (click)=\"focusInput()\" [hidden]=\"showCrowsGame\">\n    <div *ngFor=\"let cmd of commands; let i = index\" class=\"output-container\">\n      <span [hidden]=\"!cmd.containsCommand\" class=\"terminal-prompt-command\">\n        <span class=\"terminal-prompt-text\">{{prompt}}</span>\n        {{cmd.command}}\n      </span>\n      <span [id]=\"'output-' + i\"></span>\n    </div>\n    <span class=\"terminal-prompt terminal-prompt-text\" *ngIf='showPrompt'>\n      {{prompt}}\n    </span>\n    <span class=\"command-input\" *ngIf='showPrompt'>\n      {{currentInput}}{{cursor}}\n    </span>\n    <input type=\"text\" class=\"cmdInput\" #cmdInput [(ngModel)]=\"currentInput\" (blur)=\"inputBlur()\" \n    (focus)=\"focusInput()\" (keyup.enter)=\"executeCommandAsync()\" (keyup)=\"onInput($event)\"/>\n  </div> \n  <app-game *ngIf=\"shootingCrows\" [hidden]=\"!showCrowsGame\" (finalScore)=\"gameFinished($event)\"></app-game>\n  <!-- <app-game  (finalScore)=\"gameFinished($event)\"></app-game> -->\n</div>\n\n\n"
 
 /***/ }),
 
@@ -2467,6 +2468,7 @@ var TerminalComponent = /** @class */ (function () {
         this.currentInput = '';
         this.showPrompt = false;
         this.shootingCrows = false;
+        this.showCrowsGame = false;
         this.cursor = '_';
         this.firstLoad = true;
         this.transactionPending = false;
@@ -2550,7 +2552,9 @@ var TerminalComponent = /** @class */ (function () {
     };
     TerminalComponent.prototype.ngOnDestroy = function () {
         this.web3Subscription.unsubscribe();
-        this.accountSubscription.unsubscribe();
+        if (this.accountSubscription != undefined) {
+            this.accountSubscription.unsubscribe();
+        }
     };
     TerminalComponent.prototype.closeTerminal = function () {
         this.shootingCrows = false;
@@ -2610,9 +2614,10 @@ var TerminalComponent = /** @class */ (function () {
                         return [3 /*break*/, 20];
                     case 1:
                         this.addOutput(this.loadingCrowsMessage);
+                        this.shootingCrows = true;
                         setTimeout(function () {
-                            _this.shootingCrows = true;
                             _this.comService.setState(__WEBPACK_IMPORTED_MODULE_8__classes_app_state_enum__["a" /* AppState */].game);
+                            _this.showCrowsGame = true;
                         }, 3000);
                         output = null;
                         // }
@@ -2777,6 +2782,7 @@ var TerminalComponent = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 this.shootingCrows = false;
+                this.showCrowsGame = false;
                 this.comService.setState(__WEBPACK_IMPORTED_MODULE_8__classes_app_state_enum__["a" /* AppState */].terminal);
                 if (this.web3State == __WEBPACK_IMPORTED_MODULE_6__classes_web3_loading_status_enum__["a" /* Web3LoadingStatus */].complete) {
                     this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +

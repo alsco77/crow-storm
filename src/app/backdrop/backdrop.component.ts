@@ -36,7 +36,7 @@ export class BackdropComponent implements OnInit, OnDestroy {
       states: {
         'default-state': {
           gradients: [
-            ['#42f4f4', '#274D25'], // green grey
+            ['#28527a', '#246054'], // green grey
             // ['#80d3fe', '#7ea0c4']  // blue grey
             ['#0963A2', '#053F6B']  // blue light blue
           ],

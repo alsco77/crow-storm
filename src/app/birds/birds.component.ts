@@ -27,11 +27,11 @@ export class BirdsComponent implements AfterViewInit, OnDestroy {
   constructor(private comService: CommunicateService) {
     this.terminalSubscription = this.comService.appState$.subscribe((state: AppState) => {
 
-        if (state == AppState.terminal || state == AppState.game) {
+        if (state == AppState.terminal) {
           clearInterval(this.mouseInterval);
           this.mouseInterval = setInterval(() => {
             document.dispatchEvent(new MouseEvent('simulatemousemove'));
-          }, 10)
+          }, 15)
         } else {
           clearInterval(this.mouseInterval);
         }

@@ -35,6 +35,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   interval: any;
 
   shootingCrows = false;
+  showCrowsGame = false;
 
   cursor = '_';
 
@@ -116,7 +117,9 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.web3Subscription.unsubscribe();
-    this.accountSubscription.unsubscribe();
+    if(this.accountSubscription != undefined){
+      this.accountSubscription.unsubscribe();
+    }
   }
 
   closeTerminal() {
@@ -153,9 +156,10 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
       switch (args[0].toLowerCase()) {
         case 'shootcrows':
           this.addOutput(this.loadingCrowsMessage);
+          this.shootingCrows = true;
           setTimeout(() => {
-            this.shootingCrows = true;
             this.comService.setState(AppState.game);
+            this.showCrowsGame = true;
           }, 3000);
           output = null;
           // }
@@ -307,6 +311,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   async gameFinished(score) {
     this.shootingCrows = false;
+    this.showCrowsGame = false;
     this.comService.setState(AppState.terminal);
     if (this.web3State == Web3LoadingStatus.complete) {
       this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
