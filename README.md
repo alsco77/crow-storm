@@ -1,27 +1,13 @@
 # CrowStorm
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.3.
+Fun web app allowing users the chance to earn Crow Coins through their interaction.
 
-## Development server
+App was built as an innovative solution to satisfy the following requirements:
+  - Deploy an ERC20 token and allow for purchasing
+  - Create an app using angular that allows users to:
+    - Check Ether balance
+    - Check token balance
+    - Purchase token using Ether
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+Check it out -> http://crowstorm.xyz
