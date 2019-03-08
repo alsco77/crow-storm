@@ -11,4 +11,4 @@ App was built as an innovative solution to satisfy the following requirements:
     - Purchase token using Ether
 
 
-Check it out -> http://crowstorm.xyz
+Check it out -> https://alsco77.github.io/crow-storm/
