@@ -2,7 +2,7 @@
 import { Component, AfterViewInit, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommunicateService } from '../../services/communicate.service';
 import { AppState } from '../../classes/app-state.enum';
-import { Subscription } from 'rxjs/subscription'
+import { Subscription } from 'rxjs/Subscription';
 
 declare var webkitAudioContext: any;
 

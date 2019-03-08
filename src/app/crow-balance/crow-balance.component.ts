@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs/subscription'
+import { Subscription } from 'rxjs/Subscription';
 
 import { Web3Service } from '../services/web3.service';
 import { CommunicateService } from '../services/communicate.service';
@@ -25,16 +25,16 @@ export class CrowBalanceComponent {
 
   constructor(private service: Web3Service, private comService: CommunicateService) {
     this.web3Subscription = this.service.web3Status$.subscribe(async (status: Web3LoadingStatus) => {
-      if (status == Web3LoadingStatus.complete) {
+      if (status === Web3LoadingStatus.complete) {
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
-          if (acc != undefined) {
+          if (acc !== undefined) {
             const crowBalanceWei = await this.service.getTokenBalanceAsync();
             const crowBalanceString = await this.service.convertWeiToEth(crowBalanceWei);
             this.crowBalance = parseInt(crowBalanceString);
             this.coinsAddedSubscription = this.comService.coinsAdded$.subscribe((amount: number) => {
               this.crowBalance += amount;
             });
-          }else{
+          } else {
             this.unsubscribeIfUndefined(this.coinsAddedSubscription);
             this.crowBalance = null;
           }
@@ -46,14 +46,14 @@ export class CrowBalanceComponent {
       }
     });
     this.appStateSubscription = this.comService.appState$.subscribe((state: AppState) => {
-      if (state == AppState.terminal || state == AppState.game) {
+      if (state === AppState.terminal || state === AppState.game) {
         setTimeout(() => {
           this.terminalIsOpen = true;
         }, 3000);
       } else {
         this.terminalIsOpen = false;
       }
-    })
+    });
     // this.isLoaded = true;
 
   }
@@ -63,8 +63,8 @@ export class CrowBalanceComponent {
 
   // }
 
-  unsubscribeIfUndefined(subscription: Subscription){
-    if(subscription != undefined){
+  unsubscribeIfUndefined(subscription: Subscription) {
+    if (subscription !== undefined) {
       subscription.unsubscribe();
     }
   }

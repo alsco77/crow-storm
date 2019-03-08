@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommunicateService } from '../app/services/communicate.service';
 import * as Typed from 'typed.js';
-import { Subscription } from 'rxjs/subscription'
+import { Subscription } from 'rxjs/Subscription';
 import { AppState } from './classes/app-state.enum';
 
 

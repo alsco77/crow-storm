@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommunicateService } from '../services/communicate.service';
 import { AppState } from '../classes/app-state.enum';
 
-import { Subscription } from 'rxjs/subscription'
+import { Subscription } from 'rxjs/Subscription';
 import * as Granim from 'granim';
 
 @Component({

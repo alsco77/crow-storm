@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 
-import { Subscription } from 'rxjs/subscription'
+import { Subscription } from 'rxjs/Subscription';
 
 import { Web3Service, TxStatus, TxInfo } from '../services/web3.service';
 import { FirebaseService } from '../services/firebase.service';
@@ -95,7 +95,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           this.firstLoad = false;
         }
         this.accountSubscription = this.service.account$.subscribe(async (acc: string) => {
-          if (acc != undefined) {
+          if (acc !== undefined) {
             this.account = acc;
             console.log("Terminal: account loaded: " + acc);
             const ethBalance = await this.service.getEthBalanceAsync();
@@ -117,7 +117,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.web3Subscription.unsubscribe();
-    if(this.accountSubscription != undefined){
+    if(this.accountSubscription !== undefined) {
       this.accountSubscription.unsubscribe();
     }
   }
@@ -169,7 +169,7 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           output = this.infoMessage;
           break;
         case 'checkconnection':
-          output = this.web3State + '^400\n'
+          output = this.web3State + '^400\n';
           if (this.account) {
             output += 'Account: ' + this.account;
           }
@@ -191,40 +191,40 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
           output = this.web3State;
           break;
         case 'purchasecrowcoins':
-          if (this.web3State == Web3LoadingStatus.complete) {
-            if (args.length == 2 && parseInt(args[1]) != NaN) {
+          if (this.web3State === Web3LoadingStatus.complete) {
+            if (args.length === 2 && parseInt(args[1]) !== NaN) {
               if (this.transactionPending) {
                 output = 'Unable to purchase tokens until your previous deposit is complete';
                 break;
               } else {
 
-                this.addOutput('Please accept the request on MetaMask...')
+                this.addOutput('Please accept the request on MetaMask...');
 
-                var count = await this.service.getNonce();
+                let count = await this.service.getNonce();
                 this.service.purchaseTokensAsync(null, args[1], function () { });
-                var txSubscription: Subscription;
+                let txSubscription: Subscription;
                 txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
                   if (txInfo != null) {
                     switch (txInfo.status) {
                       case TxStatus.hash:
-                        if (txInfo.nonce == count) {
+                        if (txInfo.nonce === count) {
                           this.addOutput('Purchase sent^200\nPlease wait...');
                         }
                         break;
                       case TxStatus.receipt:
-                        if (txInfo.nonce == count) {
+                        if (txInfo.nonce === count) {
                           // this.addOutput('Awaiting confirmation...');
                           break;
                         }
                       case TxStatus.confirmed:
-                        if (txInfo.nonce == count) {
+                        if (txInfo.nonce === count) {
                           this.addOutput('<span style="color:green">Purchase successful</span>', true);
                           txSubscription.unsubscribe();
                           count = 0;
                           break;
                         }
                       case TxStatus.error:
-                        if (txInfo.nonce == count) {
+                        if (txInfo.nonce === count) {
                           this.addOutput('There was an <span class="color:red">error</span> in purchasing the Crow Coins', true);
                           txSubscription.unsubscribe();
                           count = 0;
@@ -257,8 +257,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   }
 
   addOutput(output: string = '', isLastOutput: boolean = false) {
-    var scrollInterval = setInterval(() => {
-      var elem = this.terminalBody.nativeElement;
+    const scrollInterval = setInterval(() => {
+      const elem = this.terminalBody.nativeElement;
       elem.scrollTop = elem.scrollHeight;
     }, 20);
     const index = this.commands.length;
@@ -286,8 +286,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
   onInput(event) {
     const commands = this.commands.filter(x => x.containsCommand);
     if (commands.length > 0) {
-      if (event.keyCode == 38) { //up
-        if (this.currentCommand == -1) {
+      if (event.keyCode === 38) { // up
+        if (this.currentCommand === -1) {
           this.currentCommand = commands.length - 1;
         } else if (this.currentCommand > 0) {
           this.currentCommand -= 1;
@@ -295,8 +295,8 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
         if (this.currentCommand >= 0 && commands[this.currentCommand]) {
           this.currentInput = commands[this.currentCommand].command;
         }
-      } else if (event.keyCode == 40) { //down
-        if (this.currentCommand != -1) {
+      } else if (event.keyCode === 40) { // down
+        if (this.currentCommand !== -1) {
           this.currentCommand += 1;
           if (this.currentCommand >= commands.length) {
             this.currentCommand = -1;
@@ -313,31 +313,31 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
     this.shootingCrows = false;
     this.showCrowsGame = false;
     this.comService.setState(AppState.terminal);
-    if (this.web3State == Web3LoadingStatus.complete) {
+    if (this.web3State === Web3LoadingStatus.complete) {
       this.addOutput('\n<br/>Your sacrifice has been noted!^400\n To <span style="color:green">claim your ' + score +
         ' Crow Coins, accept the transaction on MetaMask</span>^800\n', false);
       setTimeout(async () => {
-        var count = await this.service.getNonce();
+        let count = await this.service.getNonce();
         this.service.claimTokensAsync(score.toString());
-        var txSubscription: Subscription;
+        let txSubscription: Subscription;
         this.transactionPending = true;
         txSubscription = this.service.txStatus$.subscribe((txInfo: TxInfo) => {
           if (txInfo != null) {
             switch (txInfo.status) {
               case TxStatus.hash:
-                if (txInfo.nonce == count) {
+                if (txInfo.nonce === count) {
                   this.addOutput('Depositing Coins into your wallet...', true);
                 }
                 break;
               case TxStatus.confirmed:
-                if (txInfo.nonce == count) {
+                if (txInfo.nonce === count) {
                   this.transactionPending = false;
                   count = 0;
                   txSubscription.unsubscribe();
                 }
                 break;
               case TxStatus.error:
-                if (txInfo.nonce == count) {
+                if (txInfo.nonce === count) {
                   this.transactionPending = false;
                   this.addOutput('Maybe next time you will want the coins', true);
                   count = 0;
@@ -348,9 +348,9 @@ export class TerminalComponent implements AfterViewInit, OnDestroy {
                 break;
             }
           }
-        })
+        });
       }, 600);
-    }else{
+    } else {
       this.addOutput('\n<br/>Your sacrifice has been noted!^400\n You would have earned ' + score +
         ' Crow Coins <span style="color:red;">If you had been connected to MetaMask</span>^400\n' +
         ' Enter "checkconnection" to diagnose the issue^300', true);
