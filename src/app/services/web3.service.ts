@@ -31,10 +31,10 @@ export class TxInfo {
 }
 
 export enum TxStatus {
-  hash = "hash",
-  receipt = "receipt",
-  confirmed = "confirmed",
-  error = "error"
+  hash = 'hash',
+  receipt = 'receipt',
+  confirmed = 'confirmed',
+  error = 'error'
 }
 
 @Injectable()
@@ -48,13 +48,13 @@ export class Web3Service implements OnDestroy {
   public accountInterval: any;
 
   public crowCoin: Coin = {
-    contractAddress: "0xd87469ec5737d8dde6d07001dfb6f2178fcd734b",
-    id: "crowCoin",
-    name: "Crow Coin",
+    contractAddress: '0xd87469ec5737d8dde6d07001dfb6f2178fcd734b',
+    id: 'crowCoin',
+    name: 'Crow Coin',
     ratio: 8000,
-    saleContractAddress: "0xf7e7d4cd6359a7825987d4d3d4d8126f7f3583b0",
-    symbol: "CROW"
-  }
+    saleContractAddress: '0xf7e7d4cd6359a7825987d4d3d4d8126f7f3583b0',
+    symbol: 'CROW'
+  };
 
   public web3Status = new BehaviorSubject<Web3LoadingStatus>(null);
   public web3Status$ = this.web3Status.asObservable();
@@ -70,23 +70,22 @@ export class Web3Service implements OnDestroy {
     if (typeof web3 !== 'undefined') {
       this.web3js = new Web3(web3.currentProvider);
       this.isMetaMask = true;
-      console.log("Web3Service: IsMetaMask");
-
+      console.log('Web3Service: IsMetaMask');
       try {
         this.web3js.eth.net.getId().then((id: number) => {
-          console.log("Web3Service: Network retrieved: ID= " + id);
+          console.log('Web3Service: Network retrieved: ID= ' + id);
           switch (id) {
             case 3:
               this.isRopsten = true;
-              console.log("Web3Service: Is Ropsten");
-              this.web3js.eth.getAccounts().then((accs: string[]) => {
-                console.log("Web3Service: Got accounts: " + JSON.stringify(accs));
+              console.log('Web3Service: Is Ropsten');
+              this.web3js.currentProvider.enable().then((accs: string[]) => {
+                console.log('Web3Service: Got accounts: ' + JSON.stringify(accs));
                 if (accs[0]) {
                   this.account.next(accs[0]);
                   this.web3Status.next(Web3LoadingStatus.complete);
                 } else {
                   this.account.next(accs[0]);
-                  this.web3Status.next(Web3LoadingStatus.noAccountsAvailable)
+                  this.web3Status.next(Web3LoadingStatus.noAccountsAvailable);
                 }
                 this.accountInterval = setInterval(() => {
                   this.checkAccountMetaMask();
@@ -96,11 +95,11 @@ export class Web3Service implements OnDestroy {
             default:
               // this.isRopsten = false;
               this.isRopsten = true;
-              console.log("Web3Service: Is Not Ropsten");
+              console.log('Web3Service: Is Not Ropsten');
               this.web3Status.next(Web3LoadingStatus.wrongNetwork);
               return;
           }
-        })
+        });
       } catch (e) {
         this.web3Status.next(Web3LoadingStatus.error);
       }
@@ -116,11 +115,11 @@ export class Web3Service implements OnDestroy {
 
   checkAccountMetaMask() {
     this.web3js.eth.getAccounts().then((accs: string[]) => {
-      console.log("Web3Service: loadedaccounts: " + JSON.stringify(accs));
+      console.log('Web3Service: loadedaccounts: ' + JSON.stringify(accs));
       if (accs[0] !== this.account.value) {
-        console.log("Web3Service: new account found: " + JSON.stringify(accs[0]));
-        if (accs[0] != undefined) {
-          if (this.web3Status.value != Web3LoadingStatus.complete) {
+        console.log('Web3Service: new account found: ' + JSON.stringify(accs[0]));
+        if (accs[0] !== undefined) {
+          if (this.web3Status.value !== Web3LoadingStatus.complete) {
             this.web3Status.next(Web3LoadingStatus.complete);
           }
         } else {
@@ -128,7 +127,7 @@ export class Web3Service implements OnDestroy {
         }
         this.account.next(accs[0]);
       }
-    })
+    });
   }
 
   // setProvider(provider: any) {
@@ -219,8 +218,8 @@ export class Web3Service implements OnDestroy {
       userAddress = this.account.value;
       const count = await this.web3js.eth.getTransactionCount(userAddress);
       const ethAmount = (parseInt(amount) / this.crowCoin.ratio).toString();
-      const weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(ethAmount))
-      var rawTransaction = await this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex,
+      const weiAmountHex = this.web3js.utils.toHex(this.web3js.utils.toWei(ethAmount));
+      let rawTransaction = await this.getPurchaseTokensTransaction(userAddress, this.crowCoin.saleContractAddress, weiAmountHex,
         121, 250000);
       console.log('evaluating cost of tx:' + JSON.stringify(rawTransaction));
       const gasLimit = await this.estimateGasAsync(rawTransaction);
@@ -239,7 +238,7 @@ export class Web3Service implements OnDestroy {
           this.txStatus.next(new TxInfo(TxStatus.receipt, count));
         })
         .on('confirmation', (confirmationNumber, receipt) => {
-          if (confirmationNumber == 0) {
+          if (confirmationNumber === 0) {
             this.txStatus.next(new TxInfo(TxStatus.confirmed, count));
             this.comService.addCoins(parseInt(amount));
           }
@@ -247,7 +246,7 @@ export class Web3Service implements OnDestroy {
         .on('error', () => {
           this.txStatus.next(new TxInfo(TxStatus.error, count));
         });
-      console.log("sending transaction receipt: " + JSON.stringify(receipt));
+      console.log('sending transaction receipt: ' + JSON.stringify(receipt));
       return Promise.resolve(receipt);
     } catch (e) {
       this.firebase.logTokenPurchaseError(userAddress, JSON.stringify(e));
@@ -291,7 +290,7 @@ export class Web3Service implements OnDestroy {
           this.txStatus.next(new TxInfo(TxStatus.receipt, count));
         })
         .on('confirmation', (confirmationNumber, receipt) => {
-          if (confirmationNumber == 0) {
+          if (confirmationNumber === 0) {
             this.txStatus.next(new TxInfo(TxStatus.confirmed, count));
             this.comService.addCoins(parseInt(amount));
           }
@@ -299,7 +298,7 @@ export class Web3Service implements OnDestroy {
         .on('error', () => {
           this.txStatus.next(new TxInfo(TxStatus.error, count));
         });
-      console.log("sending transaction receipt: " + JSON.stringify(receipt));
+      console.log('sending transaction receipt: ' + JSON.stringify(receipt));
       return Promise.resolve(receipt);
     } catch (e) {
       this.firebase.logTokenPurchaseError(this.account.value, JSON.stringify(e));
